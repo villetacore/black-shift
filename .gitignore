@@ -1,0 +1,24 @@
+# Build output and local toolchains (scripts/install-beam.ps1, Qt via aqt)
+/build/
+/dist/
+client/core/target/
+
+# Elixir server
+/server/_build/
+/server/deps/
+/server/data/
+erl_crash.dump
+
+# Logs and editor/tool state
+*.log
+.elixir_ls/
+.elixir-tools/
+.expert/
+.idea/
+.vscode/
+.vs/
+
+# Binaries
+*.exe
+*.dll
+*.pdb

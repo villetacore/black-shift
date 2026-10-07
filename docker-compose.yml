@@ -1,0 +1,14 @@
+# Dedicated game server: docker compose up -d
+# Players connect with: blackshift --server <host>:7777
+services:
+  server:
+    build: ./server
+    image: blackshift-server
+    restart: unless-stopped
+    ports:
+      - "7777:7777"
+    volumes:
+      - blackshift-data:/data
+
+volumes:
+  blackshift-data:

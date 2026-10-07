@@ -1,0 +1,186 @@
+name: Release
+
+# Push a tag such as v0.3.0 (matching the version in CMakeLists.txt) to publish:
+#   - game packages (client + server + launcher) for Windows x64, Linux x64 and macOS arm64
+#   - the server image ghcr.io/<owner>/<repo>-server for linux/amd64 and linux/arm64
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+  packages: write
+
+env:
+  OTP_VERSION: "27.3"
+  ELIXIR_VERSION: "1.18.4"
+  QT_VERSION: "6.8.3"
+
+jobs:
+  version:
+    name: Check version
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Tag must match the project version
+        run: |
+          version=$(sed -n 's/^project(BlackShift VERSION \([0-9.]*\).*/\1/p' CMakeLists.txt)
+          tag="${GITHUB_REF_NAME#v}"
+          [ "${tag%%-*}" = "$version" ] || { echo "Tag $GITHUB_REF_NAME does not match CMake version $version"; exit 1; }
+
+  windows:
+    name: Windows package
+    needs: version
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+      - uses: erlef/setup-beam@v1
+        with:
+          otp-version: ${{ env.OTP_VERSION }}
+          elixir-version: ${{ env.ELIXIR_VERSION }}
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: jurplel/install-qt-action@v4
+        with:
+          version: ${{ env.QT_VERSION }}
+          arch: win64_msvc2022_64
+          cache: true
+      - name: Build client and server release
+        shell: pwsh
+        run: ./scripts/build.ps1 -SkipTests -QtPath "$env:QT_ROOT_DIR"
+      - name: Package
+        shell: pwsh
+        run: ./scripts/package.ps1 -Version "${{ github.ref_name }}"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows
+          path: dist/*.zip
+          if-no-files-found: error
+
+  linux:
+    name: Linux package
+    needs: version
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: erlef/setup-beam@v1
+        with:
+          otp-version: ${{ env.OTP_VERSION }}
+          elixir-version: ${{ env.ELIXIR_VERSION }}
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Install Qt and build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends qt6-base-dev qt6-base-dev-tools qt6-qpa-plugins libgl-dev ninja-build file
+      - name: Build server release
+        working-directory: server
+        env:
+          MIX_ENV: prod
+        run: mix release --overwrite --path ../build/server
+      - name: Build client
+        run: |
+          cmake -S . -B build/client -G Ninja -DCMAKE_BUILD_TYPE=Release
+          cmake --build build/client
+      - name: Package
+        env:
+          QMAKE: /usr/lib/qt6/bin/qmake6
+        run: scripts/package.sh "$GITHUB_REF_NAME"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux
+          path: dist/*.tar.gz
+          if-no-files-found: error
+
+  macos:
+    name: macOS package
+    needs: version
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+      # setup-beam does not support macOS: Erlang from Homebrew, Elixir from its precompiled release.
+      - name: Install Erlang/OTP and Elixir
+        run: |
+          brew install erlang@27
+          echo "$(brew --prefix erlang@27)/bin" >> "$GITHUB_PATH"
+          curl -fsSL -o elixir.zip "https://github.com/elixir-lang/elixir/releases/download/v${ELIXIR_VERSION}/elixir-otp-27.zip"
+          unzip -q elixir.zip -d "$RUNNER_TEMP/elixir"
+          echo "$RUNNER_TEMP/elixir/bin" >> "$GITHUB_PATH"
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: jurplel/install-qt-action@v4
+        with:
+          version: ${{ env.QT_VERSION }}
+          host: mac
+          arch: clang_64
+          cache: true
+      - name: Build server release
+        working-directory: server
+        env:
+          MIX_ENV: prod
+        run: mix release --overwrite --path ../build/server
+      - name: Build client
+        run: |
+          cmake -S . -B build/client -DCMAKE_BUILD_TYPE=Release
+          cmake --build build/client --parallel
+      - name: Package
+        run: scripts/package.sh "$GITHUB_REF_NAME"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: macos
+          path: dist/*.zip
+          if-no-files-found: error
+
+  docker:
+    name: Server image
+    needs: version
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}-server
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=raw,value=latest,enable=${{ !contains(github.ref_name, '-') }}
+          labels: |
+            org.opencontainers.image.title=Black Shift server
+            org.opencontainers.image.licenses=MIT
+      - uses: docker/build-push-action@v6
+        with:
+          context: server
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  publish:
+    name: Publish GitHub release
+    needs: [windows, linux, macos, docker]
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+      - name: Release notes from CHANGELOG.md
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          awk -v v="$version" '/^## /{p = index($0, "[" v "]") > 0; next} p' CHANGELOG.md > notes.md
+          [ -s notes.md ] || echo "See CHANGELOG.md." > notes.md
+          image="ghcr.io/$(echo "$GITHUB_REPOSITORY" | tr '[:upper:]' '[:lower:]')-server:$version"
+          printf '\n### Server image\n\n```sh\ndocker run -d -p 7777:7777 -v blackshift-data:/data %s\n```\n' "$image" >> notes.md
+      - uses: softprops/action-gh-release@v2
+        with:
+          body_path: notes.md
+          files: artifacts/*
+          prerelease: ${{ contains(github.ref_name, '-') }}

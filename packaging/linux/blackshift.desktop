@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Black Shift
+Comment=Network arena shooter
+Exec=blackshift
+Icon=blackshift
+Categories=Game;ActionGame;
+Terminal=false

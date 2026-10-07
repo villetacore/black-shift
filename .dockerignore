@@ -1,0 +1,7 @@
+build
+dist
+.git
+server/_build
+server/deps
+server/data
+client/core/target

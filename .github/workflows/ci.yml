@@ -1,0 +1,126 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  OTP_VERSION: "27.3"
+  ELIXIR_VERSION: "1.18.4"
+  QT_VERSION: "6.8.3"
+
+jobs:
+  server:
+    name: Server (Elixir/OTP)
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: server
+    steps:
+      - uses: actions/checkout@v4
+      - uses: erlef/setup-beam@v1
+        with:
+          otp-version: ${{ env.OTP_VERSION }}
+          elixir-version: ${{ env.ELIXIR_VERSION }}
+      - uses: actions/cache@v4
+        with:
+          path: server/_build
+          key: build-${{ runner.os }}-${{ env.OTP_VERSION }}-${{ env.ELIXIR_VERSION }}-${{ hashFiles('server/mix.exs') }}
+      - name: Check formatting
+        run: mix format --check-formatted
+      - name: Test
+        run: mix test --warnings-as-errors
+      - name: Compile for production
+        run: mix compile --warnings-as-errors
+        env:
+          MIX_ENV: prod
+
+  core:
+    name: Client core (Rust)
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: client/core
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: client/core
+      - run: cargo fmt --check
+      - run: cargo clippy --all-targets -- -D warnings
+      - run: cargo test
+
+  # The native integration test needs an interactive desktop with OpenGL 2.1, so CI only builds it.
+  client-windows:
+    name: Client (Windows)
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: jurplel/install-qt-action@v4
+        with:
+          version: ${{ env.QT_VERSION }}
+          arch: win64_msvc2022_64
+          cache: true
+      - run: cmake -S . -B build/client -A x64 -DBLACKSHIFT_CLIENT_TESTS=ON
+      - run: cmake --build build/client --config Release --parallel
+
+  client-linux:
+    name: Client (Linux)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Install Qt and build tools
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends qt6-base-dev qt6-base-dev-tools libgl-dev ninja-build
+      - run: cmake -S . -B build/client -G Ninja -DCMAKE_BUILD_TYPE=Release -DBLACKSHIFT_CLIENT_TESTS=ON
+      - run: cmake --build build/client
+
+  client-macos:
+    name: Client (macOS)
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: jurplel/install-qt-action@v4
+        with:
+          version: ${{ env.QT_VERSION }}
+          host: mac
+          arch: clang_64
+          cache: true
+      - run: cmake -S . -B build/client -DCMAKE_BUILD_TYPE=Release -DBLACKSHIFT_CLIENT_TESTS=ON
+      - run: cmake --build build/client --parallel
+
+  docker:
+    name: Server Docker image
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/build-push-action@v6
+        with:
+          context: server
+          load: true
+          tags: blackshift-server:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - name: Smoke test
+        run: |
+          docker run -d --name server -p 7777:7777 blackshift-server:ci
+          for i in $(seq 1 30); do
+            if python3 -c "import socket; s = socket.create_connection(('127.0.0.1', 7777), 2); assert b'hello' in s.recv(256)" 2>/dev/null; then
+              echo "server is up"; exit 0
+            fi
+            sleep 1
+          done
+          docker logs server
+          exit 1

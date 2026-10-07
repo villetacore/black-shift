@@ -1,0 +1,1834 @@
+{
+  "objects": [
+    {
+      "material": 0,
+      "shape": "box",
+      "position": [
+        15,
+        12,
+        -0.2
+      ],
+      "collision": true,
+      "yaw": 0.0,
+      "id": "floor",
+      "uv_scale": 0.5,
+      "size": [
+        30,
+        24,
+        0.4
+      ]
+    },
+    {
+      "material": 13,
+      "shape": "box",
+      "position": [
+        15,
+        12,
+        5.15
+      ],
+      "collision": true,
+      "yaw": 0.0,
+      "id": "ceiling",
+      "uv_scale": 0.5,
+      "size": [
+        30,
+        24,
+        0.3
+      ]
+    },
+    {
+      "material": 1,
+      "shape": "box",
+      "position": [
+        0.25,
+        12,
+        2.5
+      ],
+      "collision": true,
+      "yaw": 0.0,
+      "id": "west-wall",
+      "uv_scale": 0.5,
+      "size": [
+        0.5,
+        24,
+        5
+      ]
+    },
+    {
+      "material": 2,
+      "shape": "box",
+      "position": [
+        15,
+        0.25,
+        2.5
+      ],
+      "collision": true,
+      "yaw": 0.0,
+      "id": "north-wall",
+      "uv_scale": 0.5,
+      "size": [
+        29,
+        0.5,
+        5
+      ]
+    },
+    {
+      "material": 2,
+      "shape": "box",
+      "position": [
+        4,
+        9.5,
+        1.4
+      ],
+      "collision": true,
+      "yaw": 0.0,
+      "id": "west-bunker",
+      "uv_scale": 0.5,
+      "size": [
+        4,
+        1,
+        2.8
+      ]
+    },
+    {
+      "material": 3,
+      "shape": "box",
+      "position": [
+        8.5,
+        11.5,
+        0.625
+      ],
+      "collision": true,
+      "yaw": 0.0,
+      "id": "reactor-cover-west",
+      "uv_scale": 0.5,
+      "size": [
+        1,
+        3,
+        1.25
+      ]
+    },
+    {
+      "material": 3,
+      "shape": "box",
+      "position": [
+        14.5,
+        13.5,
+        0.625
+      ],
+      "collision": true,
+      "yaw": 0.0,
+      "id": "reactor-cover-east",
+      "uv_scale": 0.5,
+      "size": [
+        1,
+        3,
+        1.25
+      ]
+    },
+    {
+      "material": 1,
+      "shape": "box",
+      "position": [
+        7.1,
+        4.5,
+        1.7
+      ],
+      "collision": true,
+      "yaw": 0.0,
+      "id": "north-room-west",
+      "uv_scale": 0.5,
+      "size": [
+        0.6,
+        5,
+        3.4
+      ]
+    },
+    {
+      "material": 1,
+      "shape": "box",
+      "position": [
+        16,
+        4.5,
+        1.7
+      ],
+      "collision": true,
+      "yaw": 0.0,
+      "id": "north-room-east",
+      "uv_scale": 0.5,
+      "size": [
+        0.6,
+        5,
+        3.4
+      ]
+    },
+    {
+      "material": 1,
+      "shape": "box",
+      "position": [
+        7.1,
+        19.5,
+        1.7
+      ],
+      "collision": true,
+      "yaw": 0.0,
+      "id": "south-room-west",
+      "uv_scale": 0.5,
+      "size": [
+        0.6,
+        5,
+        3.4
+      ]
+    },
+    {
+      "material": 1,
+      "shape": "box",
+      "position": [
+        16,
+        19.5,
+        1.7
+      ],
+      "collision": true,
+      "yaw": 0.0,
+      "id": "south-room-east",
+      "uv_scale": 0.5,
+      "size": [
+        0.6,
+        5,
+        3.4
+      ]
+    },
+    {
+      "material": 14,
+      "shape": "cylinder",
+      "position": [
+        12.2,
+        2.7,
+        1.35
+      ],
+      "collision": true,
+      "yaw": 0.0,
+      "id": "north-pump",
+      "uv_scale": 0.5,
+      "size": [
+        1.5,
+        1.5,
+        2.7
+      ]
+    },
+    {
+      "material": 14,
+      "shape": "cylinder",
+      "position": [
+        12.2,
+        21.3,
+        1.35
+      ],
+      "collision": true,
+      "yaw": 0.0,
+      "id": "south-pump",
+      "uv_scale": 0.5,
+      "size": [
+        1.5,
+        1.5,
+        2.7
+      ]
+    },
+    {
+      "material": 2,
+      "shape": "cylinder",
+      "position": [
+        19,
+        6.4,
+        1.3
+      ],
+      "collision": true,
+      "yaw": 0.0,
+      "id": "tank-a",
+      "uv_scale": 0.5,
+      "size": [
+        1.7,
+        1.7,
+        2.6
+      ]
+    },
+    {
+      "material": 2,
+      "shape": "cylinder",
+      "position": [
+        19,
+        18.1,
+        1.3
+      ],
+      "collision": true,
+      "yaw": 0.0,
+      "id": "tank-b",
+      "uv_scale": 0.5,
+      "size": [
+        1.7,
+        1.7,
+        2.6
+      ]
+    },
+    {
+      "material": 3,
+      "shape": "box",
+      "position": [
+        19,
+        9,
+        0.6
+      ],
+      "collision": true,
+      "yaw": 28.0,
+      "id": "angled-cover",
+      "uv_scale": 0.5,
+      "size": [
+        2.4,
+        0.75,
+        1.2
+      ]
+    },
+    {
+      "material": 3,
+      "shape": "box",
+      "position": [
+        20.3,
+        16.4,
+        0.6
+      ],
+      "collision": true,
+      "yaw": -25.0,
+      "id": "angled-cover-south",
+      "uv_scale": 0.5,
+      "size": [
+        2.4,
+        0.75,
+        1.2
+      ]
+    },
+    {
+      "material": 14,
+      "shape": "box",
+      "position": [
+        4.3,
+        5.5,
+        0.65
+      ],
+      "collision": true,
+      "model": "crate",
+      "yaw": 20.0,
+      "id": "cargo-a",
+      "uv_scale": 0.5,
+      "size": [
+        1.4,
+        1.4,
+        1.3
+      ]
+    },
+    {
+      "material": 14,
+      "shape": "box",
+      "position": [
+        4.5,
+        18.7,
+        0.65
+      ],
+      "collision": true,
+      "model": "crate",
+      "yaw": -12.0,
+      "id": "cargo-b",
+      "uv_scale": 0.5,
+      "size": [
+        1.4,
+        1.4,
+        1.3
+      ]
+    },
+    {
+      "material": 14,
+      "shape": "box",
+      "position": [
+        27.5,
+        20.2,
+        0.7
+      ],
+      "collision": true,
+      "model": "crate",
+      "yaw": 32.0,
+      "id": "cargo-east",
+      "uv_scale": 0.5,
+      "size": [
+        1.5,
+        1.3,
+        1.4
+      ]
+    },
+    {
+      "material": 12,
+      "shape": "box",
+      "position": [
+        25.5,
+        11.5,
+        2.18
+      ],
+      "collision": true,
+      "yaw": 0.0,
+      "id": "catwalk",
+      "uv_scale": 0.5,
+      "size": [
+        3,
+        5,
+        0.24
+      ]
+    },
+    {
+      "material": 12,
+      "shape": "ramp",
+      "position": [
+        21.5,
+        10.8,
+        1.15
+      ],
+      "collision": true,
+      "yaw": 0.0,
+      "id": "catwalk-ramp",
+      "uv_scale": 0.5,
+      "size": [
+        5,
+        1.4,
+        2.3
+      ]
+    },
+    {
+      "material": 14,
+      "shape": "box",
+      "position": [
+        24.2,
+        9.2,
+        1.03
+      ],
+      "collision": true,
+      "yaw": 0.0,
+      "id": "catwalk-support-a",
+      "uv_scale": 0.5,
+      "size": [
+        0.3,
+        0.3,
+        2.06
+      ]
+    },
+    {
+      "material": 14,
+      "shape": "box",
+      "position": [
+        26.8,
+        13.8,
+        1.03
+      ],
+      "collision": true,
+      "yaw": 0.0,
+      "id": "catwalk-support-b",
+      "uv_scale": 0.5,
+      "size": [
+        0.3,
+        0.3,
+        2.06
+      ]
+    },
+    {
+      "material": 2,
+      "shape": "box",
+      "position": [
+        27,
+        11.5,
+        2.72
+      ],
+      "collision": true,
+      "yaw": 0.0,
+      "id": "catwalk-rail",
+      "uv_scale": 0.5,
+      "size": [
+        0.12,
+        5,
+        0.84
+      ]
+    },
+    {
+      "material": 15,
+      "shape": "box",
+      "position": [
+        3.5,
+        4.5,
+        4.77
+      ],
+      "collision": true,
+      "yaw": 0.0,
+      "id": "lamp-3.5-4.5",
+      "uv_scale": 0.5,
+      "size": [
+        0.9,
+        1.4,
+        0.22
+      ]
+    },
+    {
+      "material": 15,
+      "shape": "box",
+      "position": [
+        3.5,
+        12.5,
+        4.77
+      ],
+      "collision": true,
+      "yaw": 0.0,
+      "id": "lamp-3.5-12.5",
+      "uv_scale": 0.5,
+      "size": [
+        0.9,
+        1.4,
+        0.22
+      ]
+    },
+    {
+      "material": 15,
+      "shape": "box",
+      "position": [
+        3.5,
+        20.5,
+        4.77
+      ],
+      "collision": true,
+      "yaw": 0.0,
+      "id": "lamp-3.5-20.5",
+      "uv_scale": 0.5,
+      "size": [
+        0.9,
+        1.4,
+        0.22
+      ]
+    },
+    {
+      "material": 15,
+      "shape": "box",
+      "position": [
+        11.5,
+        4.5,
+        4.77
+      ],
+      "collision": true,
+      "yaw": 0.0,
+      "id": "lamp-11.5-4.5",
+      "uv_scale": 0.5,
+      "size": [
+        0.9,
+        1.4,
+        0.22
+      ]
+    },
+    {
+      "material": 15,
+      "shape": "box",
+      "position": [
+        11.5,
+        12.5,
+        4.77
+      ],
+      "collision": true,
+      "yaw": 0.0,
+      "id": "lamp-11.5-12.5",
+      "uv_scale": 0.5,
+      "size": [
+        0.9,
+        1.4,
+        0.22
+      ]
+    },
+    {
+      "material": 15,
+      "shape": "box",
+      "position": [
+        11.5,
+        20.5,
+        4.77
+      ],
+      "collision": true,
+      "yaw": 0.0,
+      "id": "lamp-11.5-20.5",
+      "uv_scale": 0.5,
+      "size": [
+        0.9,
+        1.4,
+        0.22
+      ]
+    },
+    {
+      "material": 15,
+      "shape": "box",
+      "position": [
+        20.5,
+        4.5,
+        4.77
+      ],
+      "collision": true,
+      "yaw": 0.0,
+      "id": "lamp-20.5-4.5",
+      "uv_scale": 0.5,
+      "size": [
+        0.9,
+        1.4,
+        0.22
+      ]
+    },
+    {
+      "material": 15,
+      "shape": "box",
+      "position": [
+        20.5,
+        12.5,
+        4.77
+      ],
+      "collision": true,
+      "yaw": 0.0,
+      "id": "lamp-20.5-12.5",
+      "uv_scale": 0.5,
+      "size": [
+        0.9,
+        1.4,
+        0.22
+      ]
+    },
+    {
+      "material": 15,
+      "shape": "box",
+      "position": [
+        20.5,
+        20.5,
+        4.77
+      ],
+      "collision": true,
+      "yaw": 0.0,
+      "id": "lamp-20.5-20.5",
+      "uv_scale": 0.5,
+      "size": [
+        0.9,
+        1.4,
+        0.22
+      ]
+    },
+    {
+      "material": 15,
+      "shape": "box",
+      "position": [
+        26.5,
+        4.5,
+        4.77
+      ],
+      "collision": true,
+      "yaw": 0.0,
+      "id": "lamp-26.5-4.5",
+      "uv_scale": 0.5,
+      "size": [
+        0.9,
+        1.4,
+        0.22
+      ]
+    },
+    {
+      "material": 15,
+      "shape": "box",
+      "position": [
+        26.5,
+        12.5,
+        4.77
+      ],
+      "collision": true,
+      "yaw": 0.0,
+      "id": "lamp-26.5-12.5",
+      "uv_scale": 0.5,
+      "size": [
+        0.9,
+        1.4,
+        0.22
+      ]
+    },
+    {
+      "material": 15,
+      "shape": "box",
+      "position": [
+        26.5,
+        20.5,
+        4.77
+      ],
+      "collision": true,
+      "yaw": 0.0,
+      "id": "lamp-26.5-20.5",
+      "uv_scale": 0.5,
+      "size": [
+        0.9,
+        1.4,
+        0.22
+      ]
+    },
+    {
+      "id": "east-foundation",
+      "shape": "box",
+      "position": [
+        45,
+        22,
+        -0.2
+      ],
+      "size": [
+        30,
+        44,
+        0.4
+      ],
+      "yaw": 0.0,
+      "material": 0,
+      "uv_scale": 0.5,
+      "collision": true
+    },
+    {
+      "id": "south-foundation",
+      "shape": "box",
+      "position": [
+        15,
+        34,
+        -0.2
+      ],
+      "size": [
+        30,
+        20,
+        0.4
+      ],
+      "yaw": 0.0,
+      "material": 0,
+      "uv_scale": 0.5,
+      "collision": true
+    },
+    {
+      "id": "perimeter-east",
+      "shape": "box",
+      "position": [
+        59.75,
+        22,
+        3
+      ],
+      "size": [
+        0.5,
+        44,
+        6
+      ],
+      "yaw": 0.0,
+      "material": 1,
+      "uv_scale": 0.5,
+      "collision": true
+    },
+    {
+      "id": "perimeter-north",
+      "shape": "box",
+      "position": [
+        45,
+        0.25,
+        3
+      ],
+      "size": [
+        30,
+        0.5,
+        6
+      ],
+      "yaw": 0.0,
+      "material": 1,
+      "uv_scale": 0.5,
+      "collision": true
+    },
+    {
+      "id": "perimeter-south",
+      "shape": "box",
+      "position": [
+        30,
+        43.75,
+        3
+      ],
+      "size": [
+        60,
+        0.5,
+        6
+      ],
+      "yaw": 0.0,
+      "material": 1,
+      "uv_scale": 0.5,
+      "collision": true
+    },
+    {
+      "id": "perimeter-west-extension",
+      "shape": "box",
+      "position": [
+        0.25,
+        34,
+        3
+      ],
+      "size": [
+        0.5,
+        20,
+        6
+      ],
+      "yaw": 0.0,
+      "material": 1,
+      "uv_scale": 0.5,
+      "collision": true
+    },
+    {
+      "id": "workshop-east-1.5",
+      "shape": "box",
+      "position": [
+        29.75,
+        1.5,
+        2.5
+      ],
+      "size": [
+        0.5,
+        2,
+        5
+      ],
+      "yaw": 0.0,
+      "material": 2,
+      "uv_scale": 0.5,
+      "collision": true
+    },
+    {
+      "id": "workshop-east-8",
+      "shape": "box",
+      "position": [
+        29.75,
+        8,
+        2.5
+      ],
+      "size": [
+        0.5,
+        4,
+        5
+      ],
+      "yaw": 0.0,
+      "material": 2,
+      "uv_scale": 0.5,
+      "collision": true
+    },
+    {
+      "id": "workshop-east-18",
+      "shape": "box",
+      "position": [
+        29.75,
+        18,
+        2.5
+      ],
+      "size": [
+        0.5,
+        4,
+        5
+      ],
+      "yaw": 0.0,
+      "material": 2,
+      "uv_scale": 0.5,
+      "collision": true
+    },
+    {
+      "id": "workshop-south-3.5",
+      "shape": "box",
+      "position": [
+        3.5,
+        23.75,
+        2.5
+      ],
+      "size": [
+        6,
+        0.5,
+        5
+      ],
+      "yaw": 0.0,
+      "material": 1,
+      "uv_scale": 0.5,
+      "collision": true
+    },
+    {
+      "id": "workshop-south-18.5",
+      "shape": "box",
+      "position": [
+        18.5,
+        23.75,
+        2.5
+      ],
+      "size": [
+        9,
+        0.5,
+        5
+      ],
+      "yaw": 0.0,
+      "material": 1,
+      "uv_scale": 0.5,
+      "collision": true
+    },
+    {
+      "id": "pump-roof",
+      "shape": "box",
+      "position": [
+        39,
+        6,
+        4.7
+      ],
+      "size": [
+        18,
+        12,
+        0.3
+      ],
+      "yaw": 0.0,
+      "material": 13,
+      "uv_scale": 0.5,
+      "collision": true
+    },
+    {
+      "id": "pump-south-west",
+      "shape": "box",
+      "position": [
+        32.5,
+        12,
+        2.3
+      ],
+      "size": [
+        5,
+        0.5,
+        4.6
+      ],
+      "yaw": 0.0,
+      "material": 1,
+      "uv_scale": 0.5,
+      "collision": true
+    },
+    {
+      "id": "pump-south-east",
+      "shape": "box",
+      "position": [
+        44,
+        12,
+        2.3
+      ],
+      "size": [
+        8,
+        0.5,
+        4.6
+      ],
+      "yaw": 0.0,
+      "material": 1,
+      "uv_scale": 0.5,
+      "collision": true
+    },
+    {
+      "id": "pump-east-north",
+      "shape": "box",
+      "position": [
+        48,
+        3,
+        2.3
+      ],
+      "size": [
+        0.5,
+        6,
+        4.6
+      ],
+      "yaw": 0.0,
+      "material": 2,
+      "uv_scale": 0.5,
+      "collision": true
+    },
+    {
+      "id": "pump-east-south",
+      "shape": "box",
+      "position": [
+        48,
+        10.5,
+        2.3
+      ],
+      "size": [
+        0.5,
+        3,
+        4.6
+      ],
+      "yaw": 0.0,
+      "material": 2,
+      "uv_scale": 0.5,
+      "collision": true
+    },
+    {
+      "id": "pump-tank-33",
+      "shape": "cylinder",
+      "position": [
+        33,
+        4,
+        1.5
+      ],
+      "size": [
+        2.2,
+        2.2,
+        3
+      ],
+      "yaw": 0.0,
+      "material": 14,
+      "uv_scale": 0.5,
+      "collision": true
+    },
+    {
+      "id": "pump-tank-44",
+      "shape": "cylinder",
+      "position": [
+        44,
+        4,
+        1.5
+      ],
+      "size": [
+        2.2,
+        2.2,
+        3
+      ],
+      "yaw": 0.0,
+      "material": 14,
+      "uv_scale": 0.5,
+      "collision": true
+    },
+    {
+      "id": "pump-console",
+      "shape": "box",
+      "position": [
+        40,
+        9.5,
+        0.65
+      ],
+      "size": [
+        2.5,
+        0.8,
+        1.3
+      ],
+      "yaw": 12.0,
+      "material": 2,
+      "uv_scale": 0.5,
+      "collision": true
+    },
+    {
+      "id": "generator-roof",
+      "shape": "box",
+      "position": [
+        54,
+        22,
+        7.2
+      ],
+      "size": [
+        12,
+        20,
+        0.4
+      ],
+      "yaw": 0.0,
+      "material": 13,
+      "uv_scale": 0.5,
+      "collision": true
+    },
+    {
+      "id": "generator-west-north",
+      "shape": "box",
+      "position": [
+        48,
+        16,
+        3.5
+      ],
+      "size": [
+        0.5,
+        8,
+        7
+      ],
+      "yaw": 0.0,
+      "material": 2,
+      "uv_scale": 0.5,
+      "collision": true
+    },
+    {
+      "id": "generator-west-south",
+      "shape": "box",
+      "position": [
+        48,
+        28,
+        3.5
+      ],
+      "size": [
+        0.5,
+        8,
+        7
+      ],
+      "yaw": 0.0,
+      "material": 2,
+      "uv_scale": 0.5,
+      "collision": true
+    },
+    {
+      "id": "generator-north-west",
+      "shape": "box",
+      "position": [
+        51,
+        12,
+        3.5
+      ],
+      "size": [
+        6,
+        0.5,
+        7
+      ],
+      "yaw": 0.0,
+      "material": 2,
+      "uv_scale": 0.5,
+      "collision": true
+    },
+    {
+      "id": "generator-north-east",
+      "shape": "box",
+      "position": [
+        59,
+        12,
+        3.5
+      ],
+      "size": [
+        2,
+        0.5,
+        7
+      ],
+      "yaw": 0.0,
+      "material": 2,
+      "uv_scale": 0.5,
+      "collision": true
+    },
+    {
+      "id": "generator-south-west",
+      "shape": "box",
+      "position": [
+        50.5,
+        32,
+        3.5
+      ],
+      "size": [
+        5,
+        0.5,
+        7
+      ],
+      "yaw": 0.0,
+      "material": 2,
+      "uv_scale": 0.5,
+      "collision": true
+    },
+    {
+      "id": "generator-south-east",
+      "shape": "box",
+      "position": [
+        59,
+        32,
+        3.5
+      ],
+      "size": [
+        2,
+        0.5,
+        7
+      ],
+      "yaw": 0.0,
+      "material": 2,
+      "uv_scale": 0.5,
+      "collision": true
+    },
+    {
+      "id": "generator-16",
+      "shape": "cylinder",
+      "position": [
+        55,
+        16,
+        1.6
+      ],
+      "size": [
+        2.2,
+        2.2,
+        3.2
+      ],
+      "yaw": 0.0,
+      "material": 6,
+      "uv_scale": 0.5,
+      "collision": true
+    },
+    {
+      "id": "generator-28",
+      "shape": "cylinder",
+      "position": [
+        55,
+        28,
+        1.6
+      ],
+      "size": [
+        2.2,
+        2.2,
+        3.2
+      ],
+      "yaw": 0.0,
+      "material": 6,
+      "uv_scale": 0.5,
+      "collision": true
+    },
+    {
+      "id": "yard-loading-block",
+      "shape": "box",
+      "position": [
+        37,
+        18,
+        0.85
+      ],
+      "size": [
+        4.2,
+        1.3,
+        1.7
+      ],
+      "yaw": 24.0,
+      "material": 3,
+      "uv_scale": 0.5,
+      "collision": true
+    },
+    {
+      "id": "yard-freight-a",
+      "shape": "box",
+      "position": [
+        42,
+        25.5,
+        1.1
+      ],
+      "size": [
+        3.8,
+        2,
+        2.2
+      ],
+      "yaw": -16.0,
+      "material": 14,
+      "uv_scale": 0.5,
+      "collision": true
+    },
+    {
+      "id": "yard-freight-b",
+      "shape": "box",
+      "position": [
+        34,
+        28.7,
+        0.65
+      ],
+      "size": [
+        2.7,
+        1.3,
+        1.3
+      ],
+      "yaw": 18.0,
+      "material": 3,
+      "uv_scale": 0.5,
+      "collision": true
+    },
+    {
+      "id": "yard-divider",
+      "shape": "box",
+      "position": [
+        43.5,
+        21,
+        1.45
+      ],
+      "size": [
+        0.6,
+        3.8,
+        2.9
+      ],
+      "yaw": -15.0,
+      "material": 2,
+      "uv_scale": 0.5,
+      "collision": true
+    },
+    {
+      "id": "service-roof",
+      "shape": "box",
+      "position": [
+        24,
+        38,
+        3.9
+      ],
+      "size": [
+        48,
+        12,
+        0.3
+      ],
+      "yaw": 0.0,
+      "material": 13,
+      "uv_scale": 0.5,
+      "collision": true
+    },
+    {
+      "id": "service-north-west",
+      "shape": "box",
+      "position": [
+        7,
+        32,
+        1.9
+      ],
+      "size": [
+        14,
+        0.5,
+        3.8
+      ],
+      "yaw": 0.0,
+      "material": 1,
+      "uv_scale": 0.5,
+      "collision": true
+    },
+    {
+      "id": "service-north-middle",
+      "shape": "box",
+      "position": [
+        26,
+        32,
+        1.9
+      ],
+      "size": [
+        14,
+        0.5,
+        3.8
+      ],
+      "yaw": 0.0,
+      "material": 1,
+      "uv_scale": 0.5,
+      "collision": true
+    },
+    {
+      "id": "service-north-east",
+      "shape": "box",
+      "position": [
+        44,
+        32,
+        1.9
+      ],
+      "size": [
+        8,
+        0.5,
+        3.8
+      ],
+      "yaw": 0.0,
+      "material": 1,
+      "uv_scale": 0.5,
+      "collision": true
+    },
+    {
+      "id": "service-baffle-a",
+      "shape": "box",
+      "position": [
+        19,
+        36,
+        1.9
+      ],
+      "size": [
+        0.6,
+        8,
+        3.8
+      ],
+      "yaw": 0.0,
+      "material": 2,
+      "uv_scale": 0.5,
+      "collision": true
+    },
+    {
+      "id": "service-baffle-b",
+      "shape": "box",
+      "position": [
+        34,
+        40,
+        1.9
+      ],
+      "size": [
+        0.6,
+        7,
+        3.8
+      ],
+      "yaw": 0.0,
+      "material": 2,
+      "uv_scale": 0.5,
+      "collision": true
+    },
+    {
+      "id": "service-crate",
+      "shape": "box",
+      "position": [
+        8,
+        39,
+        0.65
+      ],
+      "size": [
+        2,
+        1.2,
+        1.3
+      ],
+      "yaw": 18.0,
+      "material": 3,
+      "uv_scale": 0.5,
+      "collision": true
+    },
+    {
+      "id": "loading-cover",
+      "shape": "box",
+      "position": [
+        52,
+        37,
+        0.8
+      ],
+      "size": [
+        3,
+        1.2,
+        1.6
+      ],
+      "yaw": -20.0,
+      "material": 14,
+      "uv_scale": 0.5,
+      "collision": true
+    },
+    {
+      "id": "fixture-34-7",
+      "shape": "box",
+      "position": [
+        34,
+        7,
+        4.37
+      ],
+      "size": [
+        0.8,
+        1.4,
+        0.2
+      ],
+      "yaw": 0.0,
+      "material": 15,
+      "uv_scale": 0.5,
+      "collision": true
+    },
+    {
+      "id": "fixture-44-7",
+      "shape": "box",
+      "position": [
+        44,
+        7,
+        4.37
+      ],
+      "size": [
+        0.8,
+        1.4,
+        0.2
+      ],
+      "yaw": 0.0,
+      "material": 15,
+      "uv_scale": 0.5,
+      "collision": true
+    },
+    {
+      "id": "fixture-52-16",
+      "shape": "box",
+      "position": [
+        52,
+        16,
+        6.67
+      ],
+      "size": [
+        0.8,
+        1.4,
+        0.2
+      ],
+      "yaw": 0.0,
+      "material": 15,
+      "uv_scale": 0.5,
+      "collision": true
+    },
+    {
+      "id": "fixture-56-26",
+      "shape": "box",
+      "position": [
+        56,
+        26,
+        6.67
+      ],
+      "size": [
+        0.8,
+        1.4,
+        0.2
+      ],
+      "yaw": 0.0,
+      "material": 15,
+      "uv_scale": 0.5,
+      "collision": true
+    },
+    {
+      "id": "fixture-8-36",
+      "shape": "box",
+      "position": [
+        8,
+        36,
+        3.62
+      ],
+      "size": [
+        0.8,
+        1.4,
+        0.2
+      ],
+      "yaw": 0.0,
+      "material": 15,
+      "uv_scale": 0.5,
+      "collision": true
+    },
+    {
+      "id": "fixture-24-38",
+      "shape": "box",
+      "position": [
+        24,
+        38,
+        3.62
+      ],
+      "size": [
+        0.8,
+        1.4,
+        0.2
+      ],
+      "yaw": 0.0,
+      "material": 15,
+      "uv_scale": 0.5,
+      "collision": true
+    },
+    {
+      "id": "fixture-41-38",
+      "shape": "box",
+      "position": [
+        41,
+        38,
+        3.62
+      ],
+      "size": [
+        0.8,
+        1.4,
+        0.2
+      ],
+      "yaw": 0.0,
+      "material": 15,
+      "uv_scale": 0.5,
+      "collision": true
+    }
+  ],
+  "name": "Foundry District",
+  "format": 2,
+  "lights": [
+    {
+      "position": [
+        3.5,
+        4.5,
+        4.55
+      ],
+      "radius": 8,
+      "intensity": 2.6
+    },
+    {
+      "position": [
+        3.5,
+        12.5,
+        4.55
+      ],
+      "radius": 8,
+      "intensity": 2.6
+    },
+    {
+      "position": [
+        3.5,
+        20.5,
+        4.55
+      ],
+      "radius": 8,
+      "intensity": 2.6
+    },
+    {
+      "position": [
+        11.5,
+        4.5,
+        4.55
+      ],
+      "radius": 8,
+      "intensity": 2.6
+    },
+    {
+      "position": [
+        11.5,
+        12.5,
+        4.55
+      ],
+      "radius": 8,
+      "intensity": 2.6
+    },
+    {
+      "position": [
+        11.5,
+        20.5,
+        4.55
+      ],
+      "radius": 8,
+      "intensity": 2.6
+    },
+    {
+      "position": [
+        20.5,
+        4.5,
+        4.55
+      ],
+      "radius": 8,
+      "intensity": 2.6
+    },
+    {
+      "position": [
+        20.5,
+        12.5,
+        4.55
+      ],
+      "radius": 8,
+      "intensity": 2.6
+    },
+    {
+      "position": [
+        20.5,
+        20.5,
+        4.55
+      ],
+      "radius": 8,
+      "intensity": 2.6
+    },
+    {
+      "position": [
+        26.5,
+        4.5,
+        4.55
+      ],
+      "radius": 8,
+      "intensity": 2.6
+    },
+    {
+      "position": [
+        26.5,
+        12.5,
+        4.55
+      ],
+      "radius": 8,
+      "intensity": 2.6
+    },
+    {
+      "position": [
+        26.5,
+        20.5,
+        4.55
+      ],
+      "radius": 8,
+      "intensity": 2.6
+    },
+    {
+      "radius": 10,
+      "position": [
+        34,
+        7,
+        4.2
+      ],
+      "intensity": 3.5
+    },
+    {
+      "radius": 10,
+      "position": [
+        44,
+        7,
+        4.2
+      ],
+      "intensity": 3.5
+    },
+    {
+      "radius": 10,
+      "position": [
+        52,
+        16,
+        6.5
+      ],
+      "intensity": 3.5
+    },
+    {
+      "radius": 10,
+      "position": [
+        56,
+        26,
+        6.5
+      ],
+      "intensity": 3.5
+    },
+    {
+      "radius": 10,
+      "position": [
+        8,
+        36,
+        3.45
+      ],
+      "intensity": 3.5
+    },
+    {
+      "radius": 10,
+      "position": [
+        24,
+        38,
+        3.45
+      ],
+      "intensity": 3.5
+    },
+    {
+      "radius": 10,
+      "position": [
+        41,
+        38,
+        3.45
+      ],
+      "intensity": 3.5
+    }
+  ],
+  "bounds": [
+    60,
+    44,
+    12
+  ],
+  "towers": [
+    [
+      9.5,
+      21.5
+    ],
+    [
+      51.5,
+      21.5
+    ]
+  ],
+  "supplies": [
+    {
+      "y": 5.5,
+      "x": 11.5
+    },
+    {
+      "y": 27.5,
+      "x": 26.5
+    },
+    {
+      "y": 7.5,
+      "x": 43.5
+    },
+    {
+      "y": 35.5,
+      "x": 37.5
+    },
+    {
+      "y": 37.5,
+      "x": 55.5
+    }
+  ],
+  "cores": [
+    [
+      2.5,
+      21.5
+    ],
+    [
+      57.5,
+      21.5
+    ]
+  ],
+  "objectives": [
+    {
+      "name": "YARD RELAY",
+      "y": 21.5,
+      "x": 32.5
+    },
+    {
+      "name": "PUMP HOUSE",
+      "y": 6.5,
+      "x": 38.5
+    },
+    {
+      "name": "SERVICE CONTROL",
+      "y": 37.5,
+      "x": 28.5
+    },
+    {
+      "name": "WORKSHOP RELAY",
+      "y": 12.5,
+      "x": 17.5
+    }
+  ],
+  "sky_color": [
+    0.24,
+    0.32,
+    0.39
+  ],
+  "zones": [
+    {
+      "name": "WORKSHOP",
+      "rect": [
+        0,
+        0,
+        30,
+        24
+      ]
+    },
+    {
+      "name": "PUMP HOUSE",
+      "rect": [
+        30,
+        0,
+        48,
+        12
+      ]
+    },
+    {
+      "name": "GENERATOR",
+      "rect": [
+        48,
+        12,
+        60,
+        32
+      ]
+    },
+    {
+      "name": "SERVICE TUNNELS",
+      "rect": [
+        0,
+        32,
+        48,
+        44
+      ]
+    },
+    {
+      "name": "LOADING DOCK",
+      "rect": [
+        48,
+        32,
+        60,
+        44
+      ]
+    },
+    {
+      "name": "OPEN YARD",
+      "rect": [
+        0,
+        0,
+        60,
+        44
+      ]
+    }
+  ],
+  "spawns": [
+    [
+      4.5,
+      21.5
+    ],
+    [
+      55.5,
+      21.5
+    ]
+  ]
+}

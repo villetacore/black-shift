@@ -1,0 +1,17 @@
+# Painted material source
+
+## Foundry Heights: active atlas
+
+Mode: built-in image_gen (not CLI). Saved asset: `assets/textures/foundry-materials.png`. Generated source retained unchanged; the renderer downsamples each tile at runtime. Models are generated separately in Rust, not inferred from a raster image.
+
+Final prompt:
+
+Use case: stylized-concept. Asset type: production material texture sheet for an original late-1990s industrial FPS. Create a perfectly square 4 by 4 grid of sixteen equal square tileable diffuse material textures, grid fills canvas edge to edge, no margins, no separators, no text, no perspective, no objects, flat orthographic surface scans, consistent moderate contrast and neutral baked-free lighting. Exact reading order row-major: 0 worn gray cobblestone floor; 1 warm gray poured concrete wall; 2 bronze riveted metal panel; 3 weathered ochre steel with black hazard stripes; 4 olive woven uniform fabric; 5 dark olive armor panel; 6 gunmetal scratched steel; 7 brown leather; 8 cyan emissive fine grid on dark background; 9 worn ochre concrete floor; 10 black rubber fine ridges; 11 smoky blue glass; 12 dark gray steel plating; 13 industrial recessed ceiling panels; 14 rusted corrugated steel; 15 cream fluorescent diffuser. Each cell must be a seamless repeating texture with its opposite edges matching; keep material pattern scale consistent within each tile. Hand-painted detailed gritty industrial surfaces, restrained rust and wear, readable at 128px per tile. No labels, numbers, captions, watermarks or external border. Deliver one square texture atlas.
+
+## Original atlas (retained)
+
+Mode: built-in image_gen (not CLI). Saved asset: `assets/textures/painted-materials.png`. The image is embedded as a Qt resource and reduced per tile by the renderer. The original source is retained unchanged.
+
+Final prompt:
+
+Create a production diffuse texture sheet for an original late-1990s early-2000s 3D industrial FPS game inspired by the material craftsmanship of Half-Life and Quake, not pixel art. One square image, exact 4 by 4 grid of 16 equal square seamless material tiles, flush edges, absolutely NO gaps borders labels text watermarks or perspective. Straight-on orthographic material scans with painted-in subtle ambient occlusion and bevel highlights, medium brightness neutral flat illumination, no dramatic shadows. Rich coherent hand-painted/photo-derived details that survive reducing each tile to 128x128 then bilinear filtering. Muted olive khaki aged concrete bronze and gunmetal palette, attractive carefully designed readable forms rather than uniform noise. Row1 left-right: large worn stone floor slabs; damp concrete masonry wall with mortar seams; olive bronze riveted industrial wall panel with central recess and vents; brown metal cargo panel with one yellow-black hazard stripe horizontally across middle. Row2: olive combat uniform fabric with pocket stitching and folds; olive military chest armor with seams and strap; dark gunmetal receiver with machined edges and subtle wear; warm beige leather glove material. Row3: pale mint luminous grille; worn ochre floor paint; charcoal rubber grip ridges; dark green glass visor. Row4: dark worn steel plate; dark ceiling recessed square coffer with ribbed vent; rusty brown pipe metal with longitudinal seams; off-white warm fluorescent diffuser. Each tile fills exactly one sixteenth of sheet. No objects, characters, scenery, weapons, logos or UI. This sheet will be split into 16 materials and mapped onto real 3D geometry.
