@@ -19,6 +19,7 @@ struct FrameView {
     float yaw = 0, pitch = 0;
     // Eye height above the feet: lower while crouching.
     float eye = 1.48f;
+    float fieldOfView = 62.f;
     // Seconds since start; drives animation.
     float seconds = 0;
     bool firing = false;

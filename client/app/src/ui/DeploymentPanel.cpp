@@ -49,9 +49,13 @@ DeploymentPanel::DeploymentPanel(QWidget *parent) : QWidget(parent) {
     layout->addSpacing(10);
     auto *online = new QPushButton("FIND MATCH                         >", this);
     layout->addWidget(online);
-    auto *practice = new QPushButton("TRAINING / 3 BOTS                   >", this);
+    auto *practice = new QPushButton("TRAINING / 3 VS 3                   >", this);
     practice->setObjectName("secondary");
     layout->addWidget(practice);
+    auto *settings = new QPushButton("SETTINGS / F10                     >", this);
+    settings->setObjectName("secondary");
+    layout->addWidget(settings);
+    connect(settings, &QPushButton::clicked, this, &DeploymentPanel::settingsRequested);
     messageLabel = new QLabel(kDefaultMessage, this);
     messageLabel->setWordWrap(true);
     messageLabel->setMinimumHeight(40);

@@ -17,9 +17,9 @@ using json::real;
 namespace {
 
 constexpr float kPi = 3.14159265358979323846f;
-constexpr float kFieldOfView = kVerticalFieldOfView, kNearPlane = 0.075f, kFarPlane = 100.f;
+constexpr float kNearPlane = 0.075f, kFarPlane = 100.f;
 // Painted material sheet: 4×4 tiles, each reduced to period-appropriate detail.
-constexpr int kSheetColumns = 4, kMaterialTextureSize = 128;
+constexpr int kSheetColumns = 4, kMaterialTextureSize = 256;
 const char *kMaterialSheet = ":/textures/painted-materials.png";
 
 QVector3D teamColor(int team) {
@@ -253,7 +253,7 @@ void SceneRenderer::render(const QJsonObject &map, const QJsonObject &snapshot, 
     QMatrix4x4 viewMatrix;
     viewMatrix.lookAt(camera, camera + forward, {0, 1, 0});
     QMatrix4x4 projection;
-    projection.perspective(kFieldOfView, float(outputSize.width()) / outputSize.height(), kNearPlane,
+    projection.perspective(view.fieldOfView, float(outputSize.width()) / outputSize.height(), kNearPlane,
                            kFarPlane);
     drawSky(view, outputSize);
     shader->bind();
@@ -502,6 +502,7 @@ void SceneRenderer::drawSky(const FrameView &view, const QSize &size) {
     skyShader->setUniformValue("up", QVector3D::crossProduct(right, forward));
     skyShader->setUniformValue("aspect", float(size.width()) / size.height());
     skyShader->setUniformValue("time", time);
+    skyShader->setUniformValue("halfFovTan", std::tan(view.fieldOfView * kPi / 360.f));
     glBindBuffer(GL_ARRAY_BUFFER, screenQuad.vbo);
     skyShader->enableAttributeArray("position");
     skyShader->enableAttributeArray("uv");

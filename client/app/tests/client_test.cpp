@@ -10,10 +10,60 @@
 #include <QScopeGuard>
 #include <QTemporaryDir>
 #include <QtTest>
+#include <cstring>
 
 class ClientTest : public QObject {
     Q_OBJECT
   private slots:
+    void audioEventsAreStereoAndNotReplayed() {
+        AudioEngine mixer(nullptr, false);
+        QJsonObject self{{"id", "self"}, {"hp", 100}, {"x", 0}, {"y", 0}, {"fire_at", 0}};
+        QJsonObject enemy{{"id", "enemy"}, {"class", "ranger"}, {"hp", 100}, {"x", 0},
+                          {"y", 3},        {"fire_at", 0}};
+        QJsonObject snapshot{{"tick", 1}, {"players", QJsonArray{self, enemy}}};
+        mixer.update(snapshot, "self", 0);
+        const auto silent = mixer.read(4096);
+        QCOMPARE(silent, QByteArray(4096, '\0'));
+        enemy["fire_at"] = 4;
+        snapshot["tick"] = 2;
+        snapshot["players"] = QJsonArray{self, enemy};
+        mixer.update(snapshot, "self", 0);
+        const auto pcm = mixer.read(44100 * 4);
+        qint64 left = 0, right = 0;
+        for (int i = 0; i + 3 < pcm.size(); i += 4) {
+            qint16 l, r;
+            std::memcpy(&l, pcm.constData() + i, 2);
+            std::memcpy(&r, pcm.constData() + i + 2, 2);
+            left += std::abs(int(l));
+            right += std::abs(int(r));
+        }
+        QVERIFY(right > 10000);
+        QCOMPARE(left, qint64(0));
+        mixer.update(snapshot, "self", 0);
+        QCOMPARE(mixer.read(4096), QByteArray(4096, '\0'));
+        mixer.setVolume(0);
+        enemy["fire_at"] = 8;
+        snapshot["tick"] = 3;
+        snapshot["players"] = QJsonArray{self, enemy};
+        mixer.update(snapshot, "self", 0);
+        QCOMPARE(mixer.read(4096), QByteArray(4096, '\0'));
+        mixer.clearEvents();
+        mixer.setVolume(1);
+        mixer.update(snapshot, "self", 0);
+        QCOMPARE(mixer.read(4096), QByteArray(4096, '\0'));
+    }
+    void mouseSettingsChangeLookWithoutChangingMovement() {
+        InputController input;
+        input.configure(2, true);
+        input.look(10, 10);
+        QVERIFY(std::abs(input.yaw() - .06f) < .0001f);
+        QVERIFY(std::abs(input.pitch() - .05f) < .0001f);
+        input.keyPressed(Qt::Key_W);
+        QCOMPARE(input.take(true).forward, 1.);
+        input.release();
+        QCOMPARE(input.take(true).forward, 0.);
+    }
+
     void animationFollowsConfirmedShotsAndDeath() {
         ActorAnimator animator;
         QJsonObject p{{"id", "test"}, {"hp", 100}, {"grounded", true}, {"fire_at", 5}};
@@ -79,6 +129,11 @@ class ClientTest : public QObject {
             QTest::qWait(500);
             QVERIFY(game.grabFramebuffer().save(qEnvironmentVariable("BLACKSHIFT_TEST_SCREENSHOT")));
         }
+        game.raise();
+        game.activateWindow();
+        QVERIFY2(QTest::qWaitForWindowActive(&game, 5000),
+                 "Native input test needs an active desktop window");
+        QTest::mouseClick(&game, Qt::LeftButton);
         const double initialX = game.localPlayer()["x"].toDouble();
 
         QTest::keyClick(&game, Qt::Key_Space);
@@ -105,7 +160,10 @@ class ClientTest : public QObject {
         QTest::qWait(200);
         QVERIFY(std::abs(game.localPlayer()["x"].toDouble() - stoppedX) < 0.02);
 
-        // Capture expensive static previews after the live input assertions.
+        QTest::keyClick(&game, Qt::Key_Return);
+        QTRY_VERIFY(!game.hasSnapshot());
+
+        // Render the retained map after disconnecting: slow captures must not starve network heartbeats.
         if (!qEnvironmentVariable("BLACKSHIFT_MAP_PREVIEW").isEmpty()) {
             game.makeCurrent();
             {

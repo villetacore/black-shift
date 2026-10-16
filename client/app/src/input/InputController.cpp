@@ -35,8 +35,9 @@ void InputController::keyReleased(int key) {
 }
 
 void InputController::look(int dx, int dy) {
-    yaw_ = std::remainder(yaw_ + dx * kMouseYaw, 2 * kPi);
-    pitch_ = std::clamp(pitch_ - dy * kMousePitch, -kMaxPitch, kMaxPitch);
+    yaw_ = std::remainder(yaw_ + dx * kMouseYaw * sensitivity_, 2 * kPi);
+    pitch_ =
+        std::clamp(pitch_ - dy * kMousePitch * sensitivity_ * (invert_ ? -1.f : 1.f), -kMaxPitch, kMaxPitch);
 }
 
 bool InputController::crouching() const {

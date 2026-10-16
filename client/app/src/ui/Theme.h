@@ -24,7 +24,7 @@ void label(QPainter &p, int x, int y, const QString &text, int size, const QColo
 
 // Area of the deployment panel and of the connection status box that replaces it.
 inline QRect panelRect(const QSize &window) {
-    return {window.width() - 440, 110, 380, 490};
+    return {window.width() - 440, (window.height() - 560) / 2, 380, 560};
 }
 
 } // namespace theme

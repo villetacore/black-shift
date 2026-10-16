@@ -23,7 +23,7 @@ fn main() -> std::io::Result<()> {
     fs::write(root.join("textures/industrial-atlas.tga"), tga)?;
     fs::write(
         root.join("models/industrial.mtl"),
-        "newmtl industrial\nKd 1 1 1\nmap_Kd ../textures/foundry-materials.png\n",
+        "newmtl industrial\nKd 1 1 1\nmap_Kd ../textures/foundry-materials-v2.png\n",
     )?;
     for (name, model) in [
         ("soldier", Model::Soldier),

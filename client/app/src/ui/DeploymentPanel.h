@@ -23,6 +23,7 @@ class DeploymentPanel final : public QWidget {
   signals:
     // "online" or "practice".
     void joinRequested(const QString &mode);
+    void settingsRequested();
 
   private:
     QLineEdit *addressEdit = nullptr;

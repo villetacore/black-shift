@@ -1,9 +1,10 @@
 set(CMAKE_AUTOMOC ON)
-find_package(Qt6 6.4 REQUIRED COMPONENTS Widgets Network OpenGL OpenGLWidgets)
+find_package(Qt6 6.4 REQUIRED COMPONENTS Widgets Network OpenGL OpenGLWidgets Multimedia)
 
 # Everything except main(), shared by the game and the integration test.
 qt_add_library(blackshift_client STATIC
   src/app/GameWidget.cpp src/app/GameWidget.h
+  src/audio/AudioEngine.cpp src/audio/AudioEngine.h
   src/game/Json.h
   src/game/MatchState.cpp src/game/MatchState.h
   src/input/InputController.cpp src/input/InputController.h
@@ -20,9 +21,9 @@ qt_add_library(blackshift_client STATIC
 target_include_directories(blackshift_client PUBLIC src)
 target_compile_definitions(blackshift_client PUBLIC BLACKSHIFT_VERSION="${PROJECT_VERSION}")
 target_link_libraries(blackshift_client PUBLIC
-  Qt6::Widgets Qt6::Network Qt6::OpenGL Qt6::OpenGLWidgets blackshift::core)
+  Qt6::Widgets Qt6::Network Qt6::OpenGL Qt6::OpenGLWidgets Qt6::Multimedia blackshift::core)
 
-set(MATERIAL_SHEET "${PROJECT_SOURCE_DIR}/assets/textures/foundry-materials.png")
+set(MATERIAL_SHEET "${PROJECT_SOURCE_DIR}/assets/textures/foundry-materials-v2.png")
 set_source_files_properties("${MATERIAL_SHEET}" PROPERTIES QT_RESOURCE_ALIAS textures/painted-materials.png)
 set(WATER_TILE "${PROJECT_SOURCE_DIR}/assets/textures/cooling-water.bmp")
 set_source_files_properties("${WATER_TILE}" PROPERTIES QT_RESOURCE_ALIAS textures/cooling-water.bmp)
@@ -30,6 +31,12 @@ set(CLIENT_RESOURCES
   "${MATERIAL_SHEET}" "${WATER_TILE}"
   shaders/world.vert shaders/world.frag
   shaders/present.vert shaders/present.frag shaders/sky.frag)
+
+foreach(SOUND smg shotgun step reload hit kill hurt dash pulse relay warning victory)
+  set(SOUND_FILE "${PROJECT_SOURCE_DIR}/assets/audio/${SOUND}.wav")
+  set_source_files_properties("${SOUND_FILE}" PROPERTIES QT_RESOURCE_ALIAS "audio/${SOUND}.wav")
+  list(APPEND CLIENT_RESOURCES "${SOUND_FILE}")
+endforeach()
 
 # Resources are added to each executable so their static initialisers are always linked.
 function(blackshift_add_resources target)

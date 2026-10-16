@@ -1,4 +1,5 @@
 #pragma once
+#include "audio/AudioEngine.h"
 #include "game/MatchState.h"
 #include "input/InputController.h"
 #include "net/ServerConnection.h"
@@ -53,6 +54,9 @@ class GameWidget final : public QOpenGLWidget {
 
     Screen screen = Screen::Menu;
     ServerConnection connection;
+    AudioEngine audio;
+    float fieldOfView = 62.f;
+    void showSettings();
     MatchState match;
     InputController input;
     DeploymentPanel *panel = nullptr;

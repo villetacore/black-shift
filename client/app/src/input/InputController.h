@@ -15,6 +15,10 @@ class InputController {
     }
     // Mouse look in pixels from the window centre.
     void look(int dx, int dy);
+    void configure(float sensitivity, bool invert) {
+        sensitivity_ = sensitivity;
+        invert_ = invert;
+    }
     void setView(float yaw, float pitch) {
         yaw_ = yaw;
         pitch_ = pitch;
@@ -46,4 +50,6 @@ class InputController {
     // Presses latched until the next input message, so short taps are not lost.
     bool jumpPressed = false, abilityPressed = false, reloadPressed = false;
     float yaw_ = 0, pitch_ = 0;
+    float sensitivity_ = 1;
+    bool invert_ = false;
 };

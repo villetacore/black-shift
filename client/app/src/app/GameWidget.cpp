@@ -6,12 +6,19 @@
 #include "ui/HudPainter.h"
 #include "ui/MenuPainter.h"
 #include "ui/Theme.h"
+#include <QCheckBox>
 #include <QCursor>
 #include <QDebug>
+#include <QDialog>
+#include <QDialogButtonBox>
+#include <QDoubleSpinBox>
 #include <QFocusEvent>
+#include <QFormLayout>
 #include <QKeyEvent>
 #include <QMouseEvent>
 #include <QPainter>
+#include <QSettings>
+#include <QSlider>
 #include <algorithm>
 #include <cmath>
 
@@ -43,8 +50,14 @@ GameWidget::GameWidget(QWidget *parent) : QOpenGLWidget(parent) {
     setFocusPolicy(Qt::StrongFocus);
     setMouseTracking(true);
     clock.start();
+    QSettings settings("BlackShift", "BlackShift");
+    input.configure(std::clamp(settings.value("sensitivity", 1.).toFloat(), .1f, 4.f),
+                    settings.value("invert", false).toBool());
+    fieldOfView = std::clamp(settings.value("fov", 62.).toFloat(), 50.f, 90.f);
+    audio.setVolume(settings.value("volume", .7).toFloat());
 
     panel = new DeploymentPanel(this);
+    connect(panel, &DeploymentPanel::settingsRequested, this, &GameWidget::showSettings);
     connect(panel, &DeploymentPanel::joinRequested, this, &GameWidget::join);
 
     connect(&connection, &ServerConnection::connected, this,
@@ -93,6 +106,7 @@ void GameWidget::join(const QString &requestedMode) {
         panel->showMessage(error);
         return;
     }
+    audio.clearEvents();
     match.reset();
     haveView = false;
     input.release();
@@ -109,6 +123,7 @@ void GameWidget::lobby(const QString &error) {
     capture(false);
     connection.close();
     screen = Screen::Menu;
+    audio.clearEvents();
     match.clearSnapshot();
     panel->show();
     panel->showMessage(error);
@@ -147,6 +162,7 @@ void GameWidget::handleMessage(const QJsonObject &message) {
 void GameWidget::handleSnapshot(const QJsonObject &snapshot) {
     const auto previous = match.self();
     match.update(snapshot);
+    audio.update(snapshot, match.playerId(), input.yaw());
     const auto me = match.self();
     if (me.isEmpty())
         return;
@@ -159,6 +175,8 @@ void GameWidget::handleSnapshot(const QJsonObject &snapshot) {
         input.setView(float(number(me, "angle")), float(number(me, "pitch")));
         haveView = true;
     }
+    if (!first && number(me, "fire_at") > number(previous, "fire_at"))
+        shotUntil = clock.elapsed() + kMuzzleFlashMs;
     snapshotAt = clock.elapsed();
     const int hits = int(number(me, "hits")), hurt = int(number(me, "hurt_at"));
     if (!first && hits > lastHits) {
@@ -201,8 +219,6 @@ void GameWidget::sendInput() {
     if (match.hasSnapshot())
         in.viewTick = std::max(0, match.snapshot()["tick"].toInt() - 1);
     connection.send(protocol::input(in));
-    if (captured && input.firing() && number(match.self(), "hp") > 0)
-        shotUntil = clock.elapsed() + kMuzzleFlashMs;
 }
 
 void GameWidget::resizeEvent(QResizeEvent *event) {
@@ -218,6 +234,10 @@ void GameWidget::keyPressEvent(QKeyEvent *e) {
             capture(!captured);
         else
             lobby();
+        return;
+    }
+    if (e->key() == Qt::Key_F10) {
+        showSettings();
         return;
     }
     if (e->key() == Qt::Key_F11) {
@@ -294,6 +314,7 @@ void GameWidget::renderWorld() {
     recoilView += (float(number(me, "recoil")) - recoilView) * recoilBlend;
     recoilYawView += (float(number(me, "recoil_yaw")) - recoilYawView) * recoilBlend;
     FrameView view;
+    view.fieldOfView = fieldOfView;
     view.x = viewX;
     view.y = viewY;
     view.z = viewZ;
@@ -338,7 +359,7 @@ void GameWidget::paintGL() {
                         input.held(Qt::Key_Tab) || screen == Screen::Finished,
                         screen == Screen::Finished};
         const qint64 now = clock.elapsed();
-        const float halfFov = kVerticalFieldOfView * kPi / 360;
+        const float halfFov = fieldOfView * kPi / 360;
         hud.crosshairGap = std::tan(float(number(match.self(), "spread"))) / std::tan(halfFov) * height() / 2;
         hud.hitFade = std::max(0.f, 1 - float(now - hitAt) / kHitMarkerMs);
         hud.hitHead = hitHead;
@@ -349,4 +370,51 @@ void GameWidget::paintGL() {
     } else {
         painter.fillRect(rect(), Qt::black);
     }
+}
+
+void GameWidget::showSettings() {
+    const bool resume = captured;
+    capture(false);
+    QSettings settings("BlackShift", "BlackShift");
+    QDialog dialog(this);
+    dialog.setWindowTitle("BLACK SHIFT / Settings");
+    dialog.setMinimumWidth(400);
+    dialog.setStyleSheet("QDialog{background:#101b20;color:#d7e8e5;} QLabel,QCheckBox{color:#d7e8e5;} "
+                         "QDoubleSpinBox{padding:8px;} QPushButton{padding:10px;}");
+    auto *form = new QFormLayout(&dialog);
+    form->setContentsMargins(24, 24, 24, 24);
+    form->setSpacing(16);
+    auto *sensitivity = new QDoubleSpinBox(&dialog);
+    sensitivity->setRange(.1, 4);
+    sensitivity->setSingleStep(.1);
+    sensitivity->setValue(settings.value("sensitivity", 1.).toDouble());
+    auto *invert = new QCheckBox("Invert vertical look", &dialog);
+    invert->setChecked(settings.value("invert", false).toBool());
+    auto *fov = new QDoubleSpinBox(&dialog);
+    fov->setRange(50, 90);
+    fov->setDecimals(0);
+    fov->setSuffix(" degrees");
+    fov->setValue(fieldOfView);
+    auto *volume = new QSlider(Qt::Horizontal, &dialog);
+    volume->setRange(0, 100);
+    volume->setValue(int(settings.value("volume", .7).toDouble() * 100));
+    form->addRow("Mouse sensitivity", sensitivity);
+    form->addRow("", invert);
+    form->addRow("Vertical field of view", fov);
+    form->addRow("Sound volume", volume);
+    auto *buttons = new QDialogButtonBox(QDialogButtonBox::Save | QDialogButtonBox::Cancel, &dialog);
+    form->addRow(buttons);
+    connect(buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
+    connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
+    if (dialog.exec() == QDialog::Accepted) {
+        settings.setValue("sensitivity", sensitivity->value());
+        settings.setValue("invert", invert->isChecked());
+        settings.setValue("fov", fov->value());
+        settings.setValue("volume", volume->value() / 100.);
+        input.configure(float(sensitivity->value()), invert->isChecked());
+        fieldOfView = float(fov->value());
+        audio.setVolume(volume->value() / 100.f);
+    }
+    if (resume && screen == Screen::Playing)
+        capture(true);
 }
