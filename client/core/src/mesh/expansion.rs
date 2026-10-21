@@ -175,7 +175,7 @@ pub fn build(model: Model) -> Vec<Vertex> {
                 m.block([0.23, 1.06, z], [0.10, 0.18, 0.11], 4);
             }
         }
-        _ => unreachable!("base model routed to expansion"),
+        other => return super::workshop::build(other),
     }
     m.0
 }

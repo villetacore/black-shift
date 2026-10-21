@@ -31,7 +31,15 @@ defmodule BlackShift.Match.Server do
   def init({members, practice?}) do
     id = "#{System.system_time(:nanosecond)}-#{System.unique_integer([:positive, :monotonic])}"
     humans = Enum.map(members, &elem(&1, 1))
-    players = if practice?, do: humans ++ practice_bots(id), else: humans
+
+    players =
+      case practice? do
+        %{players: players} -> players
+        true -> humans ++ practice_bots(id)
+        false -> humans
+      end
+
+    room = if is_map(practice?), do: practice?.room, else: nil
     game = Game.new(id, players)
     sessions = Map.new(members, fn {pid, p} -> {pid, %{id: p.id, ref: Process.monitor(pid)}} end)
 
@@ -47,8 +55,8 @@ defmodule BlackShift.Match.Server do
     end)
 
     Process.send_after(self(), :tick, tick_ms())
-    Logger.info("match #{id} started, practice=#{practice?}")
-    {:ok, %{game: game, sessions: sessions, deadline: now() + tick_ms()}}
+    Logger.info("match #{id} started, mode=#{if room, do: "room", else: inspect(practice?)}")
+    {:ok, %{game: game, sessions: sessions, deadline: now() + tick_ms(), room: room}}
   end
 
   defp practice_bots(match_id) do
@@ -106,6 +114,14 @@ defmodule BlackShift.Match.Server do
     case Store.save(Game.snapshot(s.game)) do
       :ok ->
         result = Protocol.result(s.game.id, s.game.winner)
+
+        result =
+          if s.room do
+            Map.put(result, :room, BlackShift.Match.Rooms.complete(s.room, self()))
+          else
+            result
+          end
+
         Enum.each(s.sessions, fn {pid, _} -> send(pid, {:finished, self(), result}) end)
         {:stop, :normal, s}
 

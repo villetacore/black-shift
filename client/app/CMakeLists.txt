@@ -15,6 +15,7 @@ qt_add_library(blackshift_client STATIC
   src/render/SceneRenderer.cpp src/render/SceneRenderer.h
   src/render/WorldMesh.cpp src/render/WorldMesh.h
   src/ui/DeploymentPanel.cpp src/ui/DeploymentPanel.h
+  src/ui/RoomPanel.cpp src/ui/RoomPanel.h
   src/ui/HudPainter.cpp src/ui/HudPainter.h
   src/ui/MenuPainter.cpp src/ui/MenuPainter.h
   src/ui/Theme.cpp src/ui/Theme.h)
@@ -25,10 +26,12 @@ target_link_libraries(blackshift_client PUBLIC
 
 set(MATERIAL_SHEET "${PROJECT_SOURCE_DIR}/assets/textures/foundry-materials-v2.png")
 set_source_files_properties("${MATERIAL_SHEET}" PROPERTIES QT_RESOURCE_ALIAS textures/painted-materials.png)
+set(WORKSHOP_SHEET "${PROJECT_SOURCE_DIR}/assets/textures/industrial-materials-v3.png")
+set_source_files_properties("${WORKSHOP_SHEET}" PROPERTIES QT_RESOURCE_ALIAS textures/workshop-materials.png)
 set(WATER_TILE "${PROJECT_SOURCE_DIR}/assets/textures/cooling-water.bmp")
 set_source_files_properties("${WATER_TILE}" PROPERTIES QT_RESOURCE_ALIAS textures/cooling-water.bmp)
 set(CLIENT_RESOURCES
-  "${MATERIAL_SHEET}" "${WATER_TILE}"
+  "${MATERIAL_SHEET}" "${WATER_TILE}" "${WORKSHOP_SHEET}"
   shaders/world.vert shaders/world.frag
   shaders/present.vert shaders/present.frag shaders/sky.frag)
 

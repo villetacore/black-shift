@@ -1,6 +1,6 @@
 #version 120
 // Shared by the world, props, actors and effects. Material 8 (team light strips) is tinted;
-// materials 8 and 15+ are emissive.
+// Only materials 8 and 15 are emissive; workshop materials 16..31 are diffuse.
 uniform sampler2D materialTexture;
 uniform vec3 camera;
 uniform vec3 teamTint;
@@ -19,7 +19,7 @@ void main() {
   float mat=floor(surface+0.5);
   // Each material is bound as its own texture with its own mip chain: no atlas bleeding.
   vec3 tex=texture2D(materialTexture,textureUV).rgb;
-  bool emissive=abs(mat-8.0)<0.1||mat>14.5;
+  bool emissive=abs(mat-8.0)<0.1||abs(mat-15.0)<0.1;
   if(abs(mat-8.0)<0.1)tex*=teamTint;
   vec3 n=normalize(worldNormal);
   float diffuse=max(dot(n,normalize(vec3(-0.35,0.85,-0.5))),0.0);

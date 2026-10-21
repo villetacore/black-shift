@@ -1,11 +1,14 @@
 #include "app/GameWidget.h"
 #include "render/SceneRenderer.h"
+#include "ui/RoomPanel.h"
 #include <QCoreApplication>
 #include <QOpenGLContext>
 #include <QOpenGLFramebufferObject>
 #include <QOpenGLFunctions>
+#include <QPainter>
 #include <QProcess>
 #include <QProcessEnvironment>
+#include <QPushButton>
 #include <QRegularExpression>
 #include <QScopeGuard>
 #include <QTemporaryDir>
@@ -162,6 +165,67 @@ class ClientTest : public QObject {
 
         QTest::keyClick(&game, Qt::Key_Return);
         QTRY_VERIFY(!game.hasSnapshot());
+
+        game.autoConnect(endpoint.match(QString::fromUtf8(logs)).captured(0), "QA", "ranger", "room_create");
+        auto *room = game.findChild<RoomPanel *>();
+        QVERIFY(room);
+        QTRY_VERIFY_WITH_TIMEOUT(room->isVisible(), 5000);
+        auto *ready = room->findChild<QPushButton *>("ready");
+        auto *start = room->findChild<QPushButton *>("startMatch");
+        QVERIFY(ready && start);
+        QVERIFY(!start->isEnabled());
+        if (!qEnvironmentVariable("BLACKSHIFT_ROOM_SCREENSHOT").isEmpty())
+            QVERIFY(game.grab().save(qEnvironmentVariable("BLACKSHIFT_ROOM_SCREENSHOT")));
+        QTest::mouseClick(ready, Qt::LeftButton);
+        QTRY_VERIFY(start->isEnabled());
+        QTest::mouseClick(start, Qt::LeftButton);
+        QTRY_VERIFY_WITH_TIMEOUT(game.hasSnapshot(), 5000);
+        QCOMPARE(game.matchState().snapshot()["players"].toArray().size(), 6);
+        QTest::keyClick(&game, Qt::Key_Escape);
+        QTest::keyClick(&game, Qt::Key_Return);
+        QTRY_VERIFY(!game.hasSnapshot());
+
+        if (!qEnvironmentVariable("BLACKSHIFT_ASSET_PREVIEW").isEmpty()) {
+            game.makeCurrent();
+            {
+                SceneRenderer preview;
+                QVERIFY(preview.initialize());
+                QOpenGLFramebufferObject target(QSize(440, 330),
+                                                QOpenGLFramebufferObject::CombinedDepthStencil);
+                QVERIFY(target.isValid());
+                QImage sheet(1760, 1140, QImage::Format_RGB32);
+                sheet.fill(QColor("#111e22"));
+                QPainter painter(&sheet);
+                painter.setPen(QColor("#65dcd0"));
+                painter.setFont(QFont("Consolas", 14, QFont::Bold));
+                const QStringList names = {"transformer", "compressor",    "server-rack",    "workbench",
+                                           "tool-chest",  "pipe-manifold", "cable-tray",     "floodlight",
+                                           "forklift",    "vent-duct",     "pressure-valve", "cooling-unit"};
+                for (int i = 0; i < names.size(); ++i) {
+                    QJsonObject prop{{"model", names[i]},
+                                     {"position", QJsonArray{0, 0, .8}},
+                                     {"size", QJsonArray{1.5, 1.5, 1.6}}};
+                    QJsonObject floor{{"model", "crate"},
+                                      {"position", QJsonArray{0, 0, -.15}},
+                                      {"size", QJsonArray{3, 3, .3}}};
+                    QJsonObject map{{"name", names[i]},
+                                    {"objects", QJsonArray{floor, prop}},
+                                    {"lights", QJsonArray{QJsonObject{{"position", QJsonArray{-2, 3, 4}},
+                                                                      {"intensity", 3},
+                                                                      {"radius", 8}}}}};
+                    preview.render(map, {}, {}, FrameView{-2.4f, 3.2f, .9f, -.927f, -.38f}, QSize(440, 330),
+                                   target.handle());
+                    QCOMPARE(QOpenGLContext::currentContext()->functions()->glGetError(),
+                             GLenum(GL_NO_ERROR));
+                    painter.drawImage((i % 4) * 440, (i / 4) * 380, target.toImage());
+                    painter.drawText(QRect((i % 4) * 440, (i / 4) * 380 + 330, 440, 50), Qt::AlignCenter,
+                                     names[i].toUpper());
+                }
+                painter.end();
+                QVERIFY(sheet.save(qEnvironmentVariable("BLACKSHIFT_ASSET_PREVIEW")));
+            }
+            game.doneCurrent();
+        }
 
         // Render the retained map after disconnecting: slow captures must not starve network heartbeats.
         if (!qEnvironmentVariable("BLACKSHIFT_MAP_PREVIEW").isEmpty()) {

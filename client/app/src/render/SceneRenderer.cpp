@@ -102,8 +102,8 @@ bool SceneRenderer::loadShaders() {
 
 // One texture per material, each with its own mip chain, so filtering never bleeds between tiles.
 bool SceneRenderer::loadTextures() {
-    const QImage painted(kMaterialSheet);
-    if (painted.isNull()) {
+    const QImage sheets[] = {QImage(kMaterialSheet), QImage(":/textures/workshop-materials.png")};
+    if (sheets[0].isNull() || sheets[1].isNull()) {
         failure = "Missing painted material resource";
         return false;
     }
@@ -122,10 +122,12 @@ bool SceneRenderer::loadTextures() {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glGenTextures(BS_MATERIAL_COUNT, textures.data());
-    const int tileW = painted.width() / kSheetColumns, tileH = painted.height() / kSheetColumns;
     for (int material = 0; material < BS_MATERIAL_COUNT; material++) {
+        const auto &sheet = sheets[material / 16];
+        const int tile = material % 16;
+        const int tileW = sheet.width() / kSheetColumns, tileH = sheet.height() / kSheetColumns;
         const QImage pixels =
-            painted.copy((material % kSheetColumns) * tileW, (material / kSheetColumns) * tileH, tileW, tileH)
+            sheet.copy((tile % kSheetColumns) * tileW, (tile / kSheetColumns) * tileH, tileW, tileH)
                 .scaled(kMaterialTextureSize, kMaterialTextureSize, Qt::IgnoreAspectRatio,
                         Qt::SmoothTransformation)
                 .convertToFormat(QImage::Format_RGBA8888);

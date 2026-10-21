@@ -15,7 +15,7 @@ pub struct Vertex {
     pub position: [f32; 3],
     pub normal: [f32; 3],
     pub uv: [f32; 2],
-    /// Material index 0..16, stored as a float vertex attribute.
+    /// Material index 0..32, stored as a float vertex attribute.
     pub material: f32,
 }
 
@@ -156,3 +156,4 @@ impl MeshBuilder {
 }
 
 mod expansion;
+mod workshop;

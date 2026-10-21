@@ -37,10 +37,22 @@ pub enum Model {
     Smg = 24,
     WardenGear = 25,
     RangerGear = 26,
+    Transformer = 27,
+    Compressor = 28,
+    ServerRack = 29,
+    Workbench = 30,
+    ToolChest = 31,
+    PipeManifold = 32,
+    CableTray = 33,
+    Floodlight = 34,
+    Forklift = 35,
+    VentDuct = 36,
+    PressureValve = 37,
+    CoolingUnit = 38,
 }
 
 impl Model {
-    pub const ALL: [Model; 27] = [
+    pub const ALL: [Model; 39] = [
         Model::Cube,
         Model::Soldier,
         Model::Leg,
@@ -68,6 +80,18 @@ impl Model {
         Model::Smg,
         Model::WardenGear,
         Model::RangerGear,
+        Model::Transformer,
+        Model::Compressor,
+        Model::ServerRack,
+        Model::Workbench,
+        Model::ToolChest,
+        Model::PipeManifold,
+        Model::CableTray,
+        Model::Floodlight,
+        Model::Forklift,
+        Model::VentDuct,
+        Model::PressureValve,
+        Model::CoolingUnit,
     ];
 
     pub fn from_raw(raw: i32) -> Option<Model> {
@@ -213,7 +237,7 @@ mod tests {
                 assert!(v.position.iter().all(|f| f.is_finite()));
                 let len = v.normal.iter().map(|v| v * v).sum::<f32>();
                 assert!((len - 1.).abs() < 1e-4);
-                assert!((0.0..16.0).contains(&v.material));
+                assert!((0.0..32.0).contains(&v.material));
             }
         }
     }

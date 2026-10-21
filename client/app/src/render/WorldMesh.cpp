@@ -3,6 +3,7 @@
 #include <QHash>
 #include <QJsonArray>
 #include <QMatrix4x4>
+#include <QVector2D>
 #include <QVector3D>
 #include <QVector4D>
 #include <algorithm>
@@ -139,6 +140,40 @@ class Builder {
         }
     }
 
+    // Authored UVs for workshop instrument faces, interpolated when subdividing.
+    void propTriangle(QVector3D a, QVector3D b, QVector3D c, QVector2D ua, QVector2D ub, QVector2D uc,
+                      int material, int depth = 0) {
+        if (depth < kMaxSubdivision &&
+            std::max({(a - b).length(), (b - c).length(), (c - a).length()}) > kMaxEdge) {
+            const auto ab = (a + b) * .5f, bc = (b + c) * .5f, ca = (c + a) * .5f;
+            const auto uab = (ua + ub) * .5f, ubc = (ub + uc) * .5f, uca = (uc + ua) * .5f;
+            propTriangle(a, ab, ca, ua, uab, uca, material, depth + 1);
+            propTriangle(ab, b, bc, uab, ub, ubc, material, depth + 1);
+            propTriangle(ca, bc, c, uca, ubc, uc, material, depth + 1);
+            propTriangle(ab, bc, ca, uab, ubc, uca, material, depth + 1);
+            return;
+        }
+        const auto n = QVector3D::crossProduct(b - a, c - a).normalized();
+        if (n.lengthSquared() < .5f)
+            return;
+        if (inside(colliders, a + n * .003f) && inside(colliders, b + n * .003f) &&
+            inside(colliders, c + n * .003f))
+            return;
+        const QVector3D positions[] = {a, b, c};
+        const QVector2D uvs[] = {ua, ub, uc};
+        for (int j = 0; j < 3; j++) {
+            BsVertex v{};
+            for (int i = 0; i < 3; i++) {
+                v.position[i] = positions[j][i];
+                v.normal[i] = n[i];
+            }
+            v.uv[0] = uvs[j].x();
+            v.uv[1] = uvs[j].y();
+            v.material = float(material);
+            vertices.push_back(v);
+        }
+    }
+
   private:
     const std::vector<Collider> &colliders;
 };
@@ -184,20 +219,33 @@ void bakeLighting(std::vector<BsVertex> &vertices, const std::vector<Collider> &
 std::vector<BsVertex> buildWorldMesh(const QJsonObject &map) {
     const auto objects = map["objects"].toArray();
     const auto colliders = collidersOf(objects);
-    const QHash<QString, std::vector<BsVertex>> props = {{"pallet", modelVertices(BS_MODEL_PALLET)},
-                                                         {"console", modelVertices(BS_MODEL_CONSOLE)},
-                                                         {"generator", modelVertices(BS_MODEL_GENERATOR)},
-                                                         {"tank", modelVertices(BS_MODEL_TANK)},
-                                                         {"pump", modelVertices(BS_MODEL_PUMP)},
-                                                         {"cable-spool", modelVertices(BS_MODEL_CABLE_SPOOL)},
-                                                         {"bollard", modelVertices(BS_MODEL_BOLLARD)},
-                                                         {"lamp", modelVertices(BS_MODEL_LAMP)},
-                                                         {"barricade", modelVertices(BS_MODEL_BARRICADE)},
-                                                         {"fan", modelVertices(BS_MODEL_FAN)},
-                                                         {"crate", modelVertices(BS_MODEL_CRATE)},
-                                                         {"barrel", modelVertices(BS_MODEL_BARREL)},
-                                                         {"vent", modelVertices(BS_MODEL_VENT)},
-                                                         {"cabinet", modelVertices(BS_MODEL_CABINET)}};
+    const QHash<QString, std::vector<BsVertex>> props = {
+        {"pallet", modelVertices(BS_MODEL_PALLET)},
+        {"console", modelVertices(BS_MODEL_CONSOLE)},
+        {"generator", modelVertices(BS_MODEL_GENERATOR)},
+        {"tank", modelVertices(BS_MODEL_TANK)},
+        {"pump", modelVertices(BS_MODEL_PUMP)},
+        {"cable-spool", modelVertices(BS_MODEL_CABLE_SPOOL)},
+        {"bollard", modelVertices(BS_MODEL_BOLLARD)},
+        {"lamp", modelVertices(BS_MODEL_LAMP)},
+        {"barricade", modelVertices(BS_MODEL_BARRICADE)},
+        {"fan", modelVertices(BS_MODEL_FAN)},
+        {"crate", modelVertices(BS_MODEL_CRATE)},
+        {"barrel", modelVertices(BS_MODEL_BARREL)},
+        {"vent", modelVertices(BS_MODEL_VENT)},
+        {"cabinet", modelVertices(BS_MODEL_CABINET)},
+        {"transformer", modelVertices(BS_MODEL_TRANSFORMER)},
+        {"compressor", modelVertices(BS_MODEL_COMPRESSOR)},
+        {"server-rack", modelVertices(BS_MODEL_SERVER_RACK)},
+        {"workbench", modelVertices(BS_MODEL_WORKBENCH)},
+        {"tool-chest", modelVertices(BS_MODEL_TOOL_CHEST)},
+        {"pipe-manifold", modelVertices(BS_MODEL_PIPE_MANIFOLD)},
+        {"cable-tray", modelVertices(BS_MODEL_CABLE_TRAY)},
+        {"floodlight", modelVertices(BS_MODEL_FLOODLIGHT)},
+        {"forklift", modelVertices(BS_MODEL_FORKLIFT)},
+        {"vent-duct", modelVertices(BS_MODEL_VENT_DUCT)},
+        {"pressure-valve", modelVertices(BS_MODEL_PRESSURE_VALVE)},
+        {"cooling-unit", modelVertices(BS_MODEL_COOLING_UNIT)}};
     Builder builder(colliders);
     for (const auto entry : objects) {
         const auto o = entry.toObject();
@@ -214,8 +262,14 @@ std::vector<BsVertex> buildWorldMesh(const QJsonObject &map) {
                 const auto &v = crate[index];
                 return transform.map(QVector3D(v.position[0], v.position[1], v.position[2]));
             };
-            for (size_t i = 0; i + 2 < crate.size(); i += 3)
-                builder.triangle(point(i), point(i + 1), point(i + 2), int(crate[i].material), density);
+            for (size_t i = 0; i + 2 < crate.size(); i += 3) {
+                if (crate[i].material >= 16) {
+                    auto uv = [&](size_t index) { return QVector2D(crate[index].uv[0], crate[index].uv[1]); };
+                    builder.propTriangle(point(i), point(i + 1), point(i + 2), uv(i), uv(i + 1), uv(i + 2),
+                                         int(crate[i].material));
+                } else
+                    builder.triangle(point(i), point(i + 1), point(i + 2), int(crate[i].material), density);
+            }
             continue;
         }
         const auto points = o["vertices"].toArray();

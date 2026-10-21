@@ -10,7 +10,7 @@ typedef struct BsVertex {
     float position[3];
     float normal[3];
     float uv[2];
-    float material; // material index 0..15 of the 4x4 material sheet
+    float material; // material index 0..31 across two 4x4 material sheets
 } BsVertex;
 
 // Rigid model identifiers (mesh::Model).
@@ -42,10 +42,22 @@ typedef enum BsModel {
     BS_MODEL_SMG = 24,
     BS_MODEL_WARDEN_GEAR = 25,
     BS_MODEL_RANGER_GEAR = 26,
-    BS_MODEL_COUNT = 27
+    BS_MODEL_TRANSFORMER = 27,
+    BS_MODEL_COMPRESSOR = 28,
+    BS_MODEL_SERVER_RACK = 29,
+    BS_MODEL_WORKBENCH = 30,
+    BS_MODEL_TOOL_CHEST = 31,
+    BS_MODEL_PIPE_MANIFOLD = 32,
+    BS_MODEL_CABLE_TRAY = 33,
+    BS_MODEL_FLOODLIGHT = 34,
+    BS_MODEL_FORKLIFT = 35,
+    BS_MODEL_VENT_DUCT = 36,
+    BS_MODEL_PRESSURE_VALVE = 37,
+    BS_MODEL_COOLING_UNIT = 38,
+    BS_MODEL_COUNT = 39
 } BsModel;
 
-enum { BS_MATERIAL_COUNT = 16 };
+enum { BS_MATERIAL_COUNT = 32 };
 
 // Rigid models. Functions return 0 for unknown models or short buffers.
 int32_t bs_mesh_vertex_count(int32_t model);

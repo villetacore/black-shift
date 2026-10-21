@@ -18,3 +18,12 @@ Use case: ads-marketing. Asset: wide cinematic open source videogame README cove
 
 Output: `docs/images/cover.png`.
 
+
+
+## Industrial materials v3 — 17 October 2026
+
+Built-in ImageGen; saved as `assets/textures/industrial-materials-v3.png`. Original request:
+
+```text
+Use case: stylized-concept. Production diffuse material atlas for BLACK SHIFT industrial retro FPS. Square 2048 x 2048 image, EXACT regular 4x4 grid of sixteen equal square tiles, edge to edge no margins no gaps no labels. Orthographic flat surface textures only, no objects, no perspective, no directional shadows. Late 1990s hand painted game textures, medium scale readable patterns, subtle wear. All surfaces individually tileable. Row 1 left to right: blue-grey powder coated machine panels; cream ceramic wall tiles; red painted industrial steel; green oxidized copper. Row 2: grey diamond tread steel; tightly spaced horizontal radiator fins; beige canvas tarp; dark oily rubber conveyor belt. Row 3: ivory instrument dial panel with small analogue gauges (no readable words); dark CRT circuit board with cyan traces; red and white diagonal safety stripes; dark steel wire mesh. Row 4: galvanized corrugated metal; warm orange electrical insulation; dark grey ribbed hose material; blue enamel technical panel with pale geometric arrows (no text). Restrained industrial palette, mostly matte material, neutral even lighting. Exact uniform square grid alignment crucial.
+```

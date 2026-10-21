@@ -9,6 +9,7 @@
 #include <memory>
 
 class DeploymentPanel;
+class RoomPanel;
 class SceneRenderer;
 
 // The game window: menu → connecting/queued → playing → finished.
@@ -50,7 +51,7 @@ class GameWidget final : public QOpenGLWidget {
     void focusOutEvent(QFocusEvent *) override;
 
   private:
-    enum class Screen { Menu, Connecting, Queued, Playing, Finished };
+    enum class Screen { Menu, Connecting, Queued, Room, Playing, Finished };
 
     Screen screen = Screen::Menu;
     ServerConnection connection;
@@ -60,6 +61,9 @@ class GameWidget final : public QOpenGLWidget {
     MatchState match;
     InputController input;
     DeploymentPanel *panel = nullptr;
+    RoomPanel *roomPanel = nullptr;
+    QString roomCode;
+    void enterRoom(const QJsonObject &room, const QString &result = QString());
     std::unique_ptr<SceneRenderer> renderer;
     QTimer frameTimer, inputTimer;
     QElapsedTimer clock;

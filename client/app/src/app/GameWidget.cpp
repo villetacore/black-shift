@@ -5,6 +5,7 @@
 #include "ui/DeploymentPanel.h"
 #include "ui/HudPainter.h"
 #include "ui/MenuPainter.h"
+#include "ui/RoomPanel.h"
 #include "ui/Theme.h"
 #include <QCheckBox>
 #include <QCursor>
@@ -14,7 +15,9 @@
 #include <QDoubleSpinBox>
 #include <QFocusEvent>
 #include <QFormLayout>
+#include <QInputDialog>
 #include <QKeyEvent>
+#include <QLineEdit>
 #include <QMouseEvent>
 #include <QPainter>
 #include <QSettings>
@@ -56,12 +59,33 @@ GameWidget::GameWidget(QWidget *parent) : QOpenGLWidget(parent) {
     fieldOfView = std::clamp(settings.value("fov", 62.).toFloat(), 50.f, 90.f);
     audio.setVolume(settings.value("volume", .7).toFloat());
 
+    roomPanel = new RoomPanel(this);
+    roomPanel->hide();
+    connect(roomPanel, &RoomPanel::action, this,
+            [this](const QJsonObject &message) { connection.send(message); });
+    connect(roomPanel, &RoomPanel::leaveRequested, this, [this] { lobby(); });
     panel = new DeploymentPanel(this);
+    connect(panel, &DeploymentPanel::roomRequested, this, [this] {
+        bool ok = false;
+        const auto code = QInputDialog::getText(this, "Private room",
+                                                "Room code (empty = create a new room):", QLineEdit::Normal,
+                                                QString(), &ok);
+        if (!ok)
+            return;
+        roomCode = code.trimmed().toUpper();
+        join(roomCode.isEmpty() ? "room_create" : "room_join");
+    });
     connect(panel, &DeploymentPanel::settingsRequested, this, &GameWidget::showSettings);
     connect(panel, &DeploymentPanel::joinRequested, this, &GameWidget::join);
 
-    connect(&connection, &ServerConnection::connected, this,
-            [this] { connection.send(protocol::join(panel->callsign(), panel->role(), mode)); });
+    connect(&connection, &ServerConnection::connected, this, [this] {
+        auto message = protocol::join(panel->callsign(), panel->role(), mode);
+        if (mode == "room_create" || mode == "room_join") {
+            message["type"] = mode;
+            message["code"] = roomCode;
+        }
+        connection.send(message);
+    });
     connect(&connection, &ServerConnection::message, this, &GameWidget::handleMessage);
     connect(&connection, &ServerConnection::failed, this, [this](const QString &reason) { lobby(reason); });
     connect(&connection, &ServerConnection::closedByServer, this, [this] {
@@ -125,6 +149,7 @@ void GameWidget::lobby(const QString &error) {
     screen = Screen::Menu;
     audio.clearEvents();
     match.clearSnapshot();
+    roomPanel->hide();
     panel->show();
     panel->showMessage(error);
     update();
@@ -136,6 +161,13 @@ void GameWidget::handleMessage(const QJsonObject &message) {
         match.setPlayerId(message["id"].toString());
         if (message["version"].toInt() != protocol::kVersion)
             lobby("Incompatible protocol.");
+    } else if (type == "room") {
+        enterRoom(message);
+    } else if (type == "room_error") {
+        if (screen == Screen::Room)
+            roomPanel->showError(message["message"].toString());
+        else
+            lobby(message["message"].toString());
     } else if (type == "error") {
         lobby(message["message"].toString());
     } else if (type == "queue") {
@@ -144,6 +176,10 @@ void GameWidget::handleMessage(const QJsonObject &message) {
                      .arg(message["waiting"].toInt())
                      .arg(message["needed"].toInt());
     } else if (type == "start") {
+        roomPanel->hide();
+        haveView = false;
+        audio.clearEvents();
+        match.clearSnapshot();
         const QString error = match.start(message);
         if (!error.isEmpty()) {
             lobby(error);
@@ -154,8 +190,16 @@ void GameWidget::handleMessage(const QJsonObject &message) {
     } else if (type == "snapshot") {
         handleSnapshot(message);
     } else if (type == "result") {
-        screen = Screen::Finished;
-        capture(false);
+        if (message["room"].isObject()) {
+            const int winner = message["winner"].toInt();
+            enterRoom(message["room"].toObject(), QString("%1 won. Sides swapped — ready up for the rematch.")
+                                                      .arg(winner == 0   ? "CYAN"
+                                                           : winner == 1 ? "AMBER"
+                                                                         : "DRAW"));
+        } else {
+            screen = Screen::Finished;
+            capture(false);
+        }
     }
 }
 
@@ -224,6 +268,7 @@ void GameWidget::sendInput() {
 void GameWidget::resizeEvent(QResizeEvent *event) {
     QOpenGLWidget::resizeEvent(event);
     panel->setGeometry(theme::panelRect(size()));
+    roomPanel->setGeometry((width() - 720) / 2, (height() - 560) / 2, 720, 560);
 }
 
 void GameWidget::keyPressEvent(QKeyEvent *e) {
@@ -338,7 +383,9 @@ void GameWidget::paintGL() {
         renderWorld();
         painter.endNativePainting();
     }
-    if (screen == Screen::Menu || screen == Screen::Connecting || screen == Screen::Queued) {
+    if (screen == Screen::Room) {
+        painter.fillRect(rect(), QColor(9, 16, 20));
+    } else if (screen == Screen::Menu || screen == Screen::Connecting || screen == Screen::Queued) {
         ui::paintMenu(painter, size(), screen != Screen::Menu, status, clock.elapsed());
     } else if (!rendererReady()) {
         painter.fillRect(rect(), QColor(12, 18, 15));
@@ -417,4 +464,17 @@ void GameWidget::showSettings() {
     }
     if (resume && screen == Screen::Playing)
         capture(true);
+}
+
+void GameWidget::enterRoom(const QJsonObject &room, const QString &result) {
+    capture(false);
+    screen = Screen::Room;
+    audio.clearEvents();
+    match.clearSnapshot();
+    haveView = false;
+    roomCode = room["code"].toString();
+    panel->hide();
+    roomPanel->updateRoom(room, match.playerId(), result);
+    roomPanel->show();
+    update();
 }

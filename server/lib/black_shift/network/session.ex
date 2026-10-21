@@ -40,6 +40,7 @@ defmodule BlackShift.Network.Session do
        socket: socket,
        id: "p#{System.unique_integer([:positive, :monotonic])}",
        phase: :lobby,
+       room: nil,
        match: nil,
        monitor: nil,
        last_seen: now,
@@ -80,7 +81,22 @@ defmodule BlackShift.Network.Session do
 
   def handle_info({:finished, pid, payload}, %{match: pid} = s) do
     Process.demonitor(s.monitor, [:flush])
-    wire(%{s | phase: :lobby, match: nil, monitor: nil, lobby_at: now()}, payload)
+    phase = if s.room, do: :room, else: :lobby
+    wire(%{s | phase: phase, match: nil, monitor: nil, lobby_at: now()}, payload)
+  end
+
+  def handle_info({:room_state, code, payload}, s) do
+    wire(%{s | room: code, phase: if(s.match, do: :playing, else: :room)}, payload)
+  end
+
+  def handle_info({:room_return, code, payload}, s) do
+    if s.monitor, do: Process.demonitor(s.monitor, [:flush])
+    wire(%{s | room: code, phase: :room, match: nil, monitor: nil}, payload)
+  end
+
+  def handle_info({:DOWN, ref, :process, _, _reason}, %{monitor: ref, room: room} = s)
+      when not is_nil(room) do
+    {:noreply, %{s | phase: :room, match: nil, monitor: nil}}
   end
 
   def handle_info({:DOWN, ref, :process, _, reason}, %{monitor: ref} = s) do
@@ -133,12 +149,42 @@ defmodule BlackShift.Network.Session do
     end
   end
 
+  defp dispatch(%{"type" => type} = message, %{phase: :lobby} = s)
+       when type in ["room_create", "room_join"] do
+    with {:ok, _, player} <- Protocol.parse_join(Map.put(message, "mode", "practice")),
+         {:ok, code} <- enter_room(type, Map.put(player, :id, s.id), message) do
+      {:noreply, %{s | phase: :room, room: code}}
+    else
+      {:error, reason} -> wire(s, %{type: "room_error", message: reason})
+    end
+  end
+
+  defp dispatch(%{"type" => "room_action"} = message, %{phase: :room} = s) do
+    case BlackShift.Match.Rooms.action(self(), message) do
+      :ok -> {:noreply, s}
+      {:error, reason} -> wire(s, %{type: "room_error", message: reason})
+    end
+  end
+
+  defp dispatch(%{"type" => type}, s) when type in ["room_create", "room_join", "room_action"],
+    do: wire(s, %{type: "room_error", message: "Room action unavailable in this phase"})
+
   defp dispatch(%{"type" => "input"} = message, %{phase: :playing} = s) do
     GenServer.cast(s.match, {:input, self(), message})
     {:noreply, s}
   end
 
   defp dispatch(_, s), do: {:noreply, s}
+
+  defp enter_room("room_create", player, _), do: BlackShift.Match.Rooms.create(self(), player)
+
+  defp enter_room("room_join", player, message) do
+    code = message["code"]
+
+    if is_binary(code) and byte_size(code) == 6 and String.match?(code, ~r/^[A-Z2-7]{6}$/),
+      do: BlackShift.Match.Rooms.join(self(), player, code),
+      else: {:error, "Enter a six-character room code"}
+  end
 
   defp wire(s, payload) do
     case :gen_tcp.send(s.socket, Protocol.encode(payload)) do

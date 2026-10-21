@@ -1,3 +1,7 @@
 newmtl industrial
 Kd 1 1 1
 map_Kd ../textures/foundry-materials-v2.png
+
+newmtl workshop
+Kd 1 1 1
+map_Kd ../textures/industrial-materials-v3.png

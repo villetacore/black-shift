@@ -80,6 +80,20 @@ defmodule FoundryBuilder do
 
     expansion = File.read!(Path.join(root, "industrial-expansion.json")) |> :json.decode()
     result = result |> Map.update!("objects", &(&1 ++ expansion["objects"])) |> Map.put("liquids", expansion["liquids"])
+    workshop = File.read!(Path.join(root, "workshop-expansion.json")) |> :json.decode()
+    result = Map.update!(result, "objects", fn objects ->
+      Enum.map(objects, fn object ->
+        object = case workshop["replacements"][object["id"]] do
+          nil -> object
+          model -> Map.put(object, "model", model)
+        end
+        case workshop["materials"][object["id"]] do
+          nil -> object
+          material -> Map.put(object, "material", material)
+        end
+      end) ++ workshop["objects"]
+    end)
+    result = Map.update!(result, "lights", &(&1 ++ workshop["lights"]))
     File.write!(Path.join(root, "foundry.json"), :json.encode(result))
     IO.puts("Foundry Heights: #{length(result["objects"])} brushes, layered relays and props")
   end

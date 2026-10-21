@@ -98,4 +98,137 @@ defmodule BlackShift.Network.SessionTest do
     join(a, "practice")
     assert read(a, "error")["message"] =~ "Already queued"
   end
+
+  defp room_enter(socket, code \\ nil) do
+    write(socket, %{
+      type: if(code, do: "room_join", else: "room_create"),
+      version: 1,
+      name: "Room QA",
+      class: "ranger",
+      code: code
+    })
+  end
+
+  defp room_action(socket, action, extras \\ %{}),
+    do: write(socket, Map.merge(%{type: "room_action", action: action}, extras))
+
+  defp room_until(socket, predicate, attempts \\ 20)
+  defp room_until(_, _, 0), do: flunk("Room state did not converge")
+
+  defp room_until(socket, predicate, attempts) do
+    room = read(socket, "room")
+    if predicate.(room), do: room, else: room_until(socket, predicate, attempts - 1)
+  end
+
+  test "private room starts with bots and returns all humans for a side-swapped rematch" do
+    a = connect()
+    room_enter(a)
+    first = read(a, "room")
+    b = connect()
+    room_enter(b, first["code"])
+    room = read(b, "room")
+    assert length(room["players"]) == 2
+    room_action(b, "start")
+    assert read(b, "room_error")["message"] =~ "host"
+    room_action(a, "start")
+    assert read(a, "room_error")["message"] =~ "ready"
+    room_action(a, "ready", %{ready: true})
+    room_action(b, "ready", %{ready: true})
+    room_until(a, &Enum.all?(&1["players"], fn p -> p["ready"] end))
+    room_action(a, "start")
+    ma = read(a, "start")
+    mb = read(b, "start")
+    assert ma["match"] == mb["match"]
+    players = read(a, "snapshot")["players"]
+    assert length(players) == 6
+    assert Enum.count(players, & &1["bot"]) == 4
+    assert Enum.count(players, &(&1["team"] == 0)) == 3
+    assert Enum.count(players, &(&1["team"] == 1)) == 3
+    pid = match_pid(ma["match"])
+    :sys.replace_state(pid, fn s -> put_in(s, [:game, :score], [200, 0]) end)
+    result = read(a, "result")
+    assert result["room"]["round"] == 2
+    p = Enum.find(result["room"]["players"], &(&1["id"] == ma["id"]))
+    assert p["team"] == 1 - ma["team"]
+    refute p["ready"]
+    read(b, "result")
+    room_action(a, "ready", %{ready: true})
+    room_action(b, "ready", %{ready: true})
+    room_until(a, &Enum.all?(&1["players"], fn p -> p["ready"] end))
+    room_action(a, "start")
+    next = read(a, "start")
+    assert next["match"] != ma["match"]
+    assert next["team"] != ma["team"]
+  end
+
+  test "room enforces six humans, team capacity and membership phase" do
+    host = connect()
+    room_enter(host)
+    code = read(host, "room")["code"]
+
+    members =
+      for _ <- 1..5 do
+        socket = connect()
+        room_enter(socket, code)
+        read(socket, "room")
+        socket
+      end
+
+    extra = connect()
+    room_enter(extra, code)
+    assert read(extra, "room_error")["message"] =~ "full"
+    room_action(hd(members), "team", %{team: 0})
+    assert read(hd(members), "room_error")["message"] =~ "full"
+    Enum.each([host | members], &room_action(&1, "ready", %{ready: true}))
+
+    room_until(
+      host,
+      &(length(&1["players"]) == 6 and Enum.all?(&1["players"], fn p -> p["ready"] end))
+    )
+
+    room_action(host, "start")
+    read(host, "start")
+    players = read(host, "snapshot")["players"]
+    assert length(players) == 6
+    refute Enum.any?(players, & &1["bot"])
+    room_action(host, "team", %{team: 1})
+    assert read(host, "room_error")["message"] =~ "phase"
+  end
+
+  test "host disconnect transfers ownership and malformed codes are rejected" do
+    a = connect()
+    room_enter(a)
+    initial = read(a, "room")
+    b = connect()
+    room_enter(b, initial["code"])
+    read(b, "room")
+    :gen_tcp.close(a)
+    room = room_until(b, &(length(&1["players"]) == 1))
+    assert room["host"] == hd(room["players"])["id"]
+    assert room["host"] != initial["host"]
+    room_action(b, "ready", %{ready: true})
+    room_until(b, &hd(&1["players"])["ready"])
+    room_action(b, "class", %{class: "warden"})
+    room = room_until(b, &(hd(&1["players"])["class"] == "warden"))
+    refute hd(room["players"])["ready"]
+    c = connect()
+    room_enter(c, 12345)
+    assert read(c, "room_error")["message"] =~ "six-character"
+  end
+
+  @tag capture_log: true
+  test "crashed room match returns to lobby without dropping the connection" do
+    a = connect()
+    room_enter(a)
+    read(a, "room")
+    room_action(a, "ready", %{ready: true})
+    room_until(a, &hd(&1["players"])["ready"])
+    room_action(a, "start")
+    start = read(a, "start")
+    Process.exit(match_pid(start["match"]), :kill)
+    room = read(a, "room")
+    refute hd(room["players"])["ready"]
+    write(a, %{type: "ping"})
+    assert read(a, "pong")["type"] == "pong"
+  end
 end

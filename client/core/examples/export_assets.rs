@@ -23,7 +23,7 @@ fn main() -> std::io::Result<()> {
     fs::write(root.join("textures/industrial-atlas.tga"), tga)?;
     fs::write(
         root.join("models/industrial.mtl"),
-        "newmtl industrial\nKd 1 1 1\nmap_Kd ../textures/foundry-materials-v2.png\n",
+        "newmtl industrial\nKd 1 1 1\nmap_Kd ../textures/foundry-materials-v2.png\n\nnewmtl workshop\nKd 1 1 1\nmap_Kd ../textures/industrial-materials-v3.png\n",
     )?;
     for (name, model) in [
         ("soldier", Model::Soldier),
@@ -49,6 +49,18 @@ fn main() -> std::io::Result<()> {
         ("smg", Model::Smg),
         ("warden-gear", Model::WardenGear),
         ("ranger-gear", Model::RangerGear),
+        ("transformer", Model::Transformer),
+        ("compressor", Model::Compressor),
+        ("server-rack", Model::ServerRack),
+        ("workbench", Model::Workbench),
+        ("tool-chest", Model::ToolChest),
+        ("pipe-manifold", Model::PipeManifold),
+        ("cable-tray", Model::CableTray),
+        ("floodlight", Model::Floodlight),
+        ("forklift", Model::Forklift),
+        ("vent-duct", Model::VentDuct),
+        ("pressure-valve", Model::PressureValve),
+        ("cooling-unit", Model::CoolingUnit),
     ] {
         let mut vertices = build(model);
         // The soldier is exported in its skinned rest pose; the turret includes its head.
@@ -68,13 +80,23 @@ fn main() -> std::io::Result<()> {
         )?;
         for v in &vertices {
             writeln!(file, "v {} {} {}", v.position[0], v.position[1], v.position[2])?;
-            let mat = v.material as i32;
+            let mat = v.material as i32 % 16;
             let u = ((mat % 4) as f32 * 64.0 + 0.5 + v.uv[0].clamp(0.0, 1.0) * 63.0) / 256.0;
             let t = ((mat / 4) as f32 * 64.0 + 0.5 + v.uv[1].clamp(0.0, 1.0) * 63.0) / 256.0;
             writeln!(file, "vt {u} {}", 1.0 - t)?;
             writeln!(file, "vn {} {} {}", v.normal[0], v.normal[1], v.normal[2])?;
         }
+        let mut sheet = 0;
         for i in (1..=vertices.len()).step_by(3) {
+            let next = vertices[i - 1].material as i32 / 16;
+            if next != sheet {
+                writeln!(
+                    file,
+                    "usemtl {}",
+                    if next == 0 { "industrial" } else { "workshop" }
+                )?;
+                sheet = next;
+            }
             writeln!(file, "f {0}/{0}/{0} {1}/{1}/{1} {2}/{2}/{2}", i, i + 1, i + 2)?;
         }
         println!("{name}: {} triangles", vertices.len() / 3);

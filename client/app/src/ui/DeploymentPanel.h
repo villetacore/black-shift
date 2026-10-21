@@ -24,6 +24,7 @@ class DeploymentPanel final : public QWidget {
     // "online" or "practice".
     void joinRequested(const QString &mode);
     void settingsRequested();
+    void roomRequested();
 
   private:
     QLineEdit *addressEdit = nullptr;

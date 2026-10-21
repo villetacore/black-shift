@@ -1,5 +1,6 @@
 #include "ui/DeploymentPanel.h"
 #include <QComboBox>
+#include <QHBoxLayout>
 #include <QLabel>
 #include <QLineEdit>
 #include <QPushButton>
@@ -47,8 +48,13 @@ DeploymentPanel::DeploymentPanel(QWidget *parent) : QWidget(parent) {
         "Ranger: Q dash, then +25% speed for 1s.\nWarden: Q heal / Shift+Q attack. Shared 8s cooldown.");
     layout->addWidget(roleBox);
     layout->addSpacing(10);
-    auto *online = new QPushButton("FIND MATCH                         >", this);
-    layout->addWidget(online);
+    auto *online = new QPushButton("DUEL 1 VS 1", this);
+    auto *room = new QPushButton("PRIVATE ROOM", this);
+    auto *modes = new QHBoxLayout;
+    modes->addWidget(online);
+    modes->addWidget(room);
+    layout->addLayout(modes);
+    connect(room, &QPushButton::clicked, this, &DeploymentPanel::roomRequested);
     auto *practice = new QPushButton("TRAINING / 3 VS 3                   >", this);
     practice->setObjectName("secondary");
     layout->addWidget(practice);

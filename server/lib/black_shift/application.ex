@@ -22,6 +22,7 @@ defmodule BlackShift.Application do
        name: BlackShift.Match.Supervisor,
        max_children: Application.fetch_env!(:blackshift, :max_matches)},
       BlackShift.Match.Matchmaker,
+      BlackShift.Match.Rooms,
       {DynamicSupervisor,
        strategy: :one_for_one,
        name: BlackShift.Network.SessionSupervisor,
