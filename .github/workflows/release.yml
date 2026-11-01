@@ -154,7 +154,7 @@ jobs:
           labels: |
             org.opencontainers.image.title=Black Shift server
             org.opencontainers.image.licenses=MIT
-      - uses: docker/build-push-action@v6
+      - uses: docker/build-push-action@v7
         with:
           context: server
           platforms: linux/amd64,linux/arm64
